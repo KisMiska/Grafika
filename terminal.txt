@@ -1,0 +1,3 @@
+dotnet add package Silk.NET.Windowing
+dotnet add package Silk.NET.Input
+dotnet add package Silk.NET.Maths

@@ -121,7 +121,7 @@ namespace Szeminarium1
                 1.0f, 0.0f, 0.0f, 1.0f,
             };
 
-            uint[] indexArray = new uint[] { 
+            uint[] indexArray = new uint[] {
                 0, 1, 2,
                 2, 1, 3
             };
@@ -145,7 +145,7 @@ namespace Szeminarium1
             Gl.BindBuffer(GLEnum.ArrayBuffer, 0);
 
             Gl.UseProgram(program);
-            
+
             Gl.DrawElements(GLEnum.Triangles, (uint)indexArray.Length, GLEnum.UnsignedInt, null); // we used element buffer
             Gl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
             Gl.BindVertexArray(vao);
