@@ -35,3 +35,4 @@ D:\Egyetem\II\2\Grafika\lab1\obj\Debug\net9.0\refint\lab1.dll
 D:\Egyetem\II\2\Grafika\lab1\obj\Debug\net9.0\lab1.pdb
 D:\Egyetem\II\2\Grafika\lab1\obj\Debug\net9.0\lab1.genruntimeconfig.cache
 D:\Egyetem\II\2\Grafika\lab1\obj\Debug\net9.0\ref\lab1.dll
+D:\Egyetem\II\2\Grafika\lab1\obj\Debug\net9.0\lab1.sourcelink.json
