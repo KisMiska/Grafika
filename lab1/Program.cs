@@ -21,7 +21,7 @@ namespace Szeminarium1
         void main()
         {
 			outCol = vCol;
-            gl_Position = vec4(Pos.x, vPos.y, vPos.z, 1.0);
+            gl_Position = vec4(vPos.x, vPos.y, vPos.z, 1.0);
         }
         ";
 
@@ -37,6 +37,16 @@ namespace Szeminarium1
             FragColor = outCol;
         }
         ";
+
+        private static void ErrorCheck()
+        {
+            GLEnum error = Gl.GetError();
+            if (error != GLEnum.NoError)
+            {
+                Console.WriteLine($"ERROR: {error}");
+            }
+        }
+
 
         static void Main(string[] args)
         {
@@ -70,9 +80,11 @@ namespace Szeminarium1
             Gl.GetShader(vshader, ShaderParameterName.CompileStatus, out int vStatus);
             if (vStatus != (int)GLEnum.True)
                 throw new Exception("Vertex shader failed to compile: " + Gl.GetShaderInfoLog(vshader));
+            ErrorCheck();
 
             Gl.ShaderSource(fshader, FragmentShaderSource);
             Gl.CompileShader(fshader);
+            ErrorCheck();
 
             program = Gl.CreateProgram();
             Gl.AttachShader(program, vshader);
@@ -82,6 +94,7 @@ namespace Szeminarium1
             Gl.DetachShader(program, fshader);
             Gl.DeleteShader(vshader);
             Gl.DeleteShader(fshader);
+            ErrorCheck();
 
             Gl.GetProgram(program, GLEnum.LinkStatus, out var status);
             if (status == 0)
@@ -131,16 +144,19 @@ namespace Szeminarium1
             Gl.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)vertexArray.AsSpan(), GLEnum.StaticDraw);
             Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, null);
             Gl.EnableVertexAttribArray(0);
+            ErrorCheck();
 
             uint colors = Gl.GenBuffer();
             Gl.BindBuffer(GLEnum.ArrayBuffer, colors);
             Gl.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)colorArray.AsSpan(), GLEnum.StaticDraw);
             Gl.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 0, null);
             Gl.EnableVertexAttribArray(1);
+            ErrorCheck();
 
             uint indices = Gl.GenBuffer();
             Gl.BindBuffer(GLEnum.ElementArrayBuffer, indices);
             Gl.BufferData(GLEnum.ElementArrayBuffer, (ReadOnlySpan<uint>)indexArray.AsSpan(), GLEnum.StaticDraw);
+            ErrorCheck();
 
             Gl.BindBuffer(GLEnum.ArrayBuffer, 0);
 
@@ -149,12 +165,14 @@ namespace Szeminarium1
             Gl.DrawElements(GLEnum.Triangles, (uint)indexArray.Length, GLEnum.UnsignedInt, null); // we used element buffer
             Gl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
             Gl.BindVertexArray(vao);
+            ErrorCheck();
 
             // always unbound the vertex buffer first, so no halfway results are displayed by accident
             Gl.DeleteBuffer(vertices);
             Gl.DeleteBuffer(colors);
             Gl.DeleteBuffer(indices);
             Gl.DeleteVertexArray(vao);
+            ErrorCheck();
         }
     }
 }
