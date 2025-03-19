@@ -51,7 +51,7 @@ namespace Szeminarium1
         static void Main(string[] args)
         {
             WindowOptions windowOptions = WindowOptions.Default;
-            windowOptions.Title = "1. szeminárium - háromszög";
+            windowOptions.Title = "lab1-2 2D Kocka";
             windowOptions.Size = new Silk.NET.Maths.Vector2D<int>(500, 500);
 
             graphicWindow = Window.Create(windowOptions);
@@ -121,22 +121,45 @@ namespace Szeminarium1
             Gl.BindVertexArray(vao);
 
             float[] vertexArray = new float[] {
-                -0.5f, -0.5f, 0.0f,
-                +0.5f, -0.5f, 0.0f,
-                 0.0f, +0.5f, 0.0f,
-                 1f, 1f, 0f
+                0f, 1.0f, 0.0f, //red H -0
+                -0.87f, 0.5f, 0.0f, //red I -1
+                -0.87f, 0.5f, 0.0f, //green I -2
+                0.87f, 0.5f, 0.0f, //red J -3
+                0.87f, 0.5f, 0.0f, //blue J -4
+                0.0f, 0.0f, 0.0f, //red K -5
+                0.0f, 0.0f, 0.0f, //green K -6
+                0.0f, 0.0f, 0.0f, //blue K -7
+                -0.87f, -0.5f, 0.0f, //green L -8
+                0.87f, -0.5f, 0.0f, //blue N -9
+                0.0f, -1.0f, 0.0f, //green M -10
+                0.0f, -1.0f, 0.0f //blue M -11
+
             };
 
             float[] colorArray = new float[] {
                 1.0f, 0.0f, 0.0f, 1.0f,
+                1.0f, 0.0f, 0.0f, 1.0f,
                 0.0f, 1.0f, 0.0f, 1.0f,
+                1.0f, 0.0f, 0.0f, 1.0f,
                 0.0f, 0.0f, 1.0f, 1.0f,
                 1.0f, 0.0f, 0.0f, 1.0f,
+                0.0f, 1.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f,
+                0.0f, 1.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f,
+                0.0f, 1.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f
+
+                
             };
 
             uint[] indexArray = new uint[] {
-                0, 1, 2,
-                2, 1, 3
+                0, 1, 5,
+                0, 5, 3,
+                2, 8, 10,
+                2, 10, 6,
+                7, 11, 4,
+                11, 4, 9
             };
 
             uint vertices = Gl.GenBuffer();
@@ -145,6 +168,7 @@ namespace Szeminarium1
             Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, null);
             Gl.EnableVertexAttribArray(0);
             ErrorCheck();
+
 
             uint colors = Gl.GenBuffer();
             Gl.BindBuffer(GLEnum.ArrayBuffer, colors);
