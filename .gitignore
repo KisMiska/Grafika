@@ -11,7 +11,8 @@
 *.sln.docstates
 
 #yey
-D:\Egyetem\II\2\Grafika\Grafika\lab*\obj\*
+Grafika/lab*/obj/
+Grafika/lab*/bin/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
