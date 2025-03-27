@@ -13,6 +13,9 @@
 #yey
 Grafika/lab*/obj/
 Grafika/lab*/bin/
+lab*/obj/
+lab*/bin/
+
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
