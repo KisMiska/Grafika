@@ -13,6 +13,9 @@ namespace GrafikaSzeminarium
         private static GL Gl;
 
         //private static ModelObjectDescriptor cube;
+        private static ModelObjectDescriptor[] rubiksCubePieces;
+        private const float GAP = 0.05f;
+        private const float CUBE_SIZE = 0.4f;
 
         private static CameraDescriptor camera = new CameraDescriptor();
 
@@ -73,7 +76,10 @@ namespace GrafikaSzeminarium
 
         private static void GraphicWindow_Closing()
         {
-            cube.Dispose();
+            foreach (var cube in rubiksCubePieces)
+            {
+                cube.Dispose();
+            }
             Gl.DeleteProgram(program);
         }
 
@@ -87,10 +93,11 @@ namespace GrafikaSzeminarium
                 keyboard.KeyDown += Keyboard_KeyDown;
             }
 
-            cube = ModelObjectDescriptor.CreateCube(Gl);
+            //cube = ModelObjectDescriptor.CreateCube(Gl);
+            rubiksCubePieces = ModelObjectDescriptor.CreateRubiksCube(Gl);
 
             Gl.ClearColor(System.Drawing.Color.White);
-            
+
             Gl.Enable(EnableCap.CullFace);
             Gl.CullFace(TriangleFace.Back);
 
@@ -132,6 +139,7 @@ namespace GrafikaSzeminarium
             {
                 Console.WriteLine($"Error linking shader {Gl.GetProgramInfoLog(program)}");
             }
+
         }
 
         private static void Keyboard_KeyDown(IKeyboard keyboard, Key key, int arg3)
@@ -155,9 +163,6 @@ namespace GrafikaSzeminarium
                     break;
                 case Key.D:
                     camera.DecreaseZXAngle();
-                    break;
-                case Key.Space:
-                    cubeArrangementModel.AnimationEnabled = !cubeArrangementModel.AnimationEnabled;
                     break;
             }
         }
@@ -183,19 +188,27 @@ namespace GrafikaSzeminarium
             SetMatrix(projectionMatrix, ProjectionMatrixVariableName);
 
 
-            var modelMatrixCenterCube = Matrix4X4.CreateScale((float)cubeArrangementModel.CenterCubeScale);
-            SetMatrix(modelMatrixCenterCube, ModelMatrixVariableName);
-            DrawModelObject(cube);
+            int index = 0;
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    for (int z = -1; z <= 1; z++)
+                    {
+                        var translation = Matrix4X4.CreateTranslation(
+                            x * (CUBE_SIZE + GAP),
+                            y * (CUBE_SIZE + GAP),
+                            z * (CUBE_SIZE + GAP));
+                        var scale = Matrix4X4.CreateScale(CUBE_SIZE);
+                        var modelMatrix = scale * translation;
 
-            Matrix4X4<float> diamondScale = Matrix4X4.CreateScale(0.25f);
-            Matrix4X4<float> rotx = Matrix4X4.CreateRotationX((float)Math.PI / 4f);
-            Matrix4X4<float> rotz = Matrix4X4.CreateRotationZ((float)Math.PI / 4f);
-            Matrix4X4<float> roty = Matrix4X4.CreateRotationY((float)cubeArrangementModel.DiamondCubeLocalAngle);
-            Matrix4X4<float> trans = Matrix4X4.CreateTranslation(1f, 1f, 0f);
-            Matrix4X4<float> rotGlobalY = Matrix4X4.CreateRotationY((float)cubeArrangementModel.DiamondCubeGlobalYAngle);
-            Matrix4X4<float> dimondCubeModelMatrix = diamondScale * rotx * rotz * roty * trans * rotGlobalY;
-            SetMatrix(dimondCubeModelMatrix, ModelMatrixVariableName);
-            DrawModelObject(cube);
+                        SetMatrix(modelMatrix, ModelMatrixVariableName);
+                        DrawModelObject(rubiksCubePieces[index]);
+                        index++;
+                    }
+                }
+            }
+
 
         }
 

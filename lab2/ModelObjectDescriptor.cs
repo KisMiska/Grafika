@@ -21,9 +21,6 @@ namespace GrafikaSzeminarium
 
         private GL Gl;
 
-        private const float GAP = 0.05f; //
-        private const float SIZE = 0.4f; //
-
         public static ModelObjectDescriptor[] CreateRubiksCube(GL GL)
         {
             var smallCubes = new ModelObjectDescriptor[27];
