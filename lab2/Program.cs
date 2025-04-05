@@ -11,8 +11,6 @@ namespace GrafikaSzeminarium
         private static IWindow graphicWindow;
 
         private static GL Gl;
-
-        //private static ModelObjectDescriptor cube;
         private static ModelObjectDescriptor[] rubiksCubePieces;
         private const float GAP = 0.05f;
         private const float CUBE_SIZE = 0.4f;
@@ -93,7 +91,6 @@ namespace GrafikaSzeminarium
                 keyboard.KeyDown += Keyboard_KeyDown;
             }
 
-            //cube = ModelObjectDescriptor.CreateCube(Gl);
             rubiksCubePieces = ModelObjectDescriptor.CreateRubiksCube(Gl);
 
             Gl.ClearColor(System.Drawing.Color.White);
