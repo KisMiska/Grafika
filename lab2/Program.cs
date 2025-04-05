@@ -22,24 +22,25 @@ namespace GrafikaSzeminarium
         private const string ModelMatrixVariableName = "uModel";
         private const string ViewMatrixVariableName = "uView";
         private const string ProjectionMatrixVariableName = "uProjection";
+        private const string LayerRotationMatrixVariableName = "uLayerRotation";
 
         private static readonly string VertexShaderSource = @"
         #version 330 core
         layout (location = 0) in vec3 vPos;
-		layout (location = 1) in vec4 vCol;
+        layout (location = 1) in vec4 vCol;
 
         uniform mat4 uModel;
         uniform mat4 uView;
         uniform mat4 uProjection;
+        uniform mat4 uLayerRotation;
 
-		out vec4 outCol;
-        
+        out vec4 outCol;
+
         void main()
         {
-			outCol = vCol;
-            gl_Position = uProjection*uView*uModel*vec4(vPos.x, vPos.y, vPos.z, 1.0);
-        }
-        ";
+            outCol = vCol;
+            gl_Position = uProjection * uView * uLayerRotation * uModel * vec4(vPos.x, vPos.y, vPos.z, 1.0);
+        }";
 
 
         private static readonly string FragmentShaderSource = @"
@@ -92,6 +93,7 @@ namespace GrafikaSzeminarium
             }
 
             rubiksCubePieces = ModelObjectDescriptor.CreateRubiksCube(Gl);
+            cubeArrangementModel.AnimationEnabled = true;
 
             Gl.ClearColor(System.Drawing.Color.White);
 
@@ -173,6 +175,12 @@ namespace GrafikaSzeminarium
                 case Key.Down:
                     camera.DecreasePitch();
                     break;
+                case Key.Space:
+                    cubeArrangementModel.StartTopLayerRotationRight();
+                    break;
+                case Key.Backspace:
+                    cubeArrangementModel.StartTopLayerRotationLeft();
+                    break;
             }
         }
 
@@ -196,6 +204,9 @@ namespace GrafikaSzeminarium
             var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView<float>((float)(Math.PI / 2), 1024f / 768f, 0.1f, 100f);
             SetMatrix(projectionMatrix, ProjectionMatrixVariableName);
 
+            var identityMatrix = Matrix4X4<float>.Identity;
+            var rotationAngle = (float)(cubeArrangementModel.TopLayerRotationAngle * Math.PI / 180.0);
+            var layerRotationMatrix = Matrix4X4.CreateRotationY(rotationAngle);
 
             int index = 0;
             for (int x = -1; x <= 1; x++)
@@ -211,14 +222,14 @@ namespace GrafikaSzeminarium
                         var scale = Matrix4X4.CreateScale(CUBE_SIZE);
                         var modelMatrix = scale * translation;
 
+                        SetMatrix(y == 1 ? layerRotationMatrix : identityMatrix, LayerRotationMatrixVariableName);
+
                         SetMatrix(modelMatrix, ModelMatrixVariableName);
                         DrawModelObject(rubiksCubePieces[index]);
                         index++;
                     }
                 }
             }
-
-
         }
 
         private static unsafe void DrawModelObject(ModelObjectDescriptor modelObject)
