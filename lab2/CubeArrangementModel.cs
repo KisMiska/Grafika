@@ -30,7 +30,6 @@ namespace Szeminarium
         private double targetAngleMiddle = 0;
         private double targetAngleBottom = 0;
 
-
         public double LeftLayerRotationAngle { get; private set; } = 0;
         public double CenterLayerRotationAngle { get; private set; } = 0;
         public double RightLayerRotationAngle { get; private set; } = 0;
