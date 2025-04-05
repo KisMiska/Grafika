@@ -143,23 +143,23 @@ namespace GrafikaSzeminarium
         {
             switch (key)
             {
-                case Key.Left:
-                    camera.DecreaseZYAngle();
+                case Key.W:
+                    camera.MoveForward();
                     break;
-                case Key.Right:
-                    camera.IncreaseZYAngle();
+                case Key.S:
+                    camera.MoveBackward();
                     break;
-                case Key.Down:
-                    camera.IncreaseDistance();
-                    break;
-                case Key.Up:
-                    camera.DecreaseDistance();
-                    break;
-                case Key.U:
-                    camera.IncreaseZXAngle();
+                case Key.A:
+                    camera.MoveLeft();
                     break;
                 case Key.D:
-                    camera.DecreaseZXAngle();
+                    camera.MoveRight();
+                    break;
+                case Key.Q:
+                    camera.MoveDown();
+                    break;
+                case Key.E:
+                    camera.MoveUp();
                     break;
             }
         }

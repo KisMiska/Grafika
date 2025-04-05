@@ -5,15 +5,10 @@ namespace Szeminarium
 {
     internal class CameraDescriptor
     {
-        public double DistanceToOrigin { get; private set; } = 2;
-
-        public double AngleToZYPlane { get; private set; } = 2;
-
-        public double AngleToZXPlane { get; private set; } = 2.5;
-
+        public double DistanceToOrigin { get; private set; } = 1;
         const double DistanceScaleFactor = 1.1;
-
         const double AngleChangeStepSize = Math.PI / 180 * 5;
+        const float MoveSize = 0.2f;
 
         /// <summary>
         /// Gets the position of the camera.
@@ -22,7 +17,7 @@ namespace Szeminarium
         {
             get
             {
-                return GetPointFromAngles(DistanceToOrigin, AngleToZYPlane, AngleToZXPlane);
+                return Target - new Vector3D<float>(0, 0, 1) * (float)DistanceToOrigin;
             }
         }
 
@@ -33,42 +28,14 @@ namespace Szeminarium
         {
             get
             {
-                return Vector3D.Normalize(GetPointFromAngles(DistanceToOrigin, AngleToZYPlane, AngleToZXPlane + Math.PI / 2));
+                return Vector3D<float>.UnitY;
             }
         }
 
         /// <summary>
         /// Gets the target point of the camera view.
         /// </summary>
-        public Vector3D<float> Target
-        {
-            get
-            {
-                // For the moment the camera is always pointed at the origin.
-                return Vector3D<float>.Zero;
-            }
-        }
-
-        public void IncreaseZXAngle()
-        {
-            AngleToZXPlane += AngleChangeStepSize;
-        }
-
-        public void DecreaseZXAngle()
-        {
-            AngleToZXPlane -= AngleChangeStepSize;
-        }
-
-        public void IncreaseZYAngle()
-        {
-            AngleToZYPlane += AngleChangeStepSize;
-
-        }
-
-        public void DecreaseZYAngle()
-        {
-            AngleToZYPlane -= AngleChangeStepSize;
-        }
+        public Vector3D<float> Target { get; private set; } = Vector3D<float>.Zero;
 
         public void IncreaseDistance()
         {
@@ -78,6 +45,36 @@ namespace Szeminarium
         public void DecreaseDistance()
         {
             DistanceToOrigin = DistanceToOrigin / DistanceScaleFactor;
+        }
+
+        public void MoveForward()
+        {
+            Target += new Vector3D<float>(0, 0, 1) * MoveSize;
+        }
+
+        public void MoveBackward()
+        {
+            Target += new Vector3D<float>(0, 0, -1) * MoveSize;
+        }
+
+        public void MoveRight()
+        {
+            Target += new Vector3D<float>(-1, 0, 0) * MoveSize;
+        }
+
+        public void MoveLeft()
+        {
+            Target = Target + new Vector3D<float>(1, 0, 0) * MoveSize;
+        }
+
+        public void MoveUp()
+        {
+            Target += new Vector3D<float>(0, 1, 0) * MoveSize;
+        }
+
+        public void MoveDown()
+        {
+            Target += new Vector3D<float>(0, -1, 0) * MoveSize;
         }
 
         private static Vector3D<float> GetPointFromAngles(double distanceToOrigin, double angleToMinZYPlane, double angleToMinZXPlane)
