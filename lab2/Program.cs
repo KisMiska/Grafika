@@ -175,12 +175,43 @@ namespace GrafikaSzeminarium
                 case Key.Down:
                     camera.DecreasePitch();
                     break;
-                case Key.Space:
+                case Key.M:
                     cubeArrangementModel.StartTopLayerRotationRight();
                     break;
-                case Key.Backspace:
+                case Key.N:
                     cubeArrangementModel.StartTopLayerRotationLeft();
                     break;
+                case Key.B:
+                    cubeArrangementModel.StartMiddleLayerRotationRight();
+                    break;
+                case Key.V:
+                    cubeArrangementModel.StartMiddleLayerRotationLeft();
+                    break;
+                case Key.C:
+                    cubeArrangementModel.StartBottomLayerRotationRight();
+                    break;
+                case Key.X:
+                    cubeArrangementModel.StartBottomLayerRotationLeft();
+                    break;
+                case Key.L:
+                    cubeArrangementModel.StartLeftLayerRotationUp();
+                    break;
+                case Key.K:
+                    cubeArrangementModel.StartLeftLayerRotationDown();
+                    break;
+                case Key.J:
+                    cubeArrangementModel.StartCenterLayerRotationUp();
+                    break;
+                case Key.H:
+                    cubeArrangementModel.StartCenterLayerRotationDown();
+                    break;
+                case Key.G:
+                    cubeArrangementModel.StartRightLayerRotationUp();
+                    break;
+                case Key.F:
+                    cubeArrangementModel.StartRightLayerRotationDown();
+                    break;
+
             }
         }
 
@@ -204,9 +235,14 @@ namespace GrafikaSzeminarium
             var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView<float>((float)(Math.PI / 2), 1024f / 768f, 0.1f, 100f);
             SetMatrix(projectionMatrix, ProjectionMatrixVariableName);
 
-            var identityMatrix = Matrix4X4<float>.Identity;
-            var rotationAngle = (float)(cubeArrangementModel.TopLayerRotationAngle * Math.PI / 180.0);
-            var layerRotationMatrix = Matrix4X4.CreateRotationY(rotationAngle);
+            //var identityMatrix = Matrix4X4<float>.Identity;
+            var topRotationMatrix = Matrix4X4.CreateRotationY((float)(cubeArrangementModel.TopLayerRotationAngle * Math.PI / 180.0));
+            var middleRotationMatrix = Matrix4X4.CreateRotationY((float)(cubeArrangementModel.MiddleLayerRotationAngle * Math.PI / 180.0));
+            var bottomRotationMatrix = Matrix4X4.CreateRotationY((float)(cubeArrangementModel.BottomLayerRotationAngle * Math.PI / 180.0));
+
+            var leftRotationMatrix = Matrix4X4.CreateRotationX((float)(cubeArrangementModel.LeftLayerRotationAngle * Math.PI / 180.0));
+            var centerRotationMatrix = Matrix4X4.CreateRotationX((float)(cubeArrangementModel.CenterLayerRotationAngle * Math.PI / 180.0));
+            var rightRotationMatrix = Matrix4X4.CreateRotationX((float)(cubeArrangementModel.RightLayerRotationAngle * Math.PI / 180.0));
 
             int index = 0;
             for (int x = -1; x <= 1; x++)
@@ -222,8 +258,22 @@ namespace GrafikaSzeminarium
                         var scale = Matrix4X4.CreateScale(CUBE_SIZE);
                         var modelMatrix = scale * translation;
 
-                        SetMatrix(y == 1 ? layerRotationMatrix : identityMatrix, LayerRotationMatrixVariableName);
+                        Matrix4X4<float> layerRotation;
+                        if (y == 1)
+                            layerRotation = topRotationMatrix;
+                        else if (y == 0)
+                            layerRotation = middleRotationMatrix;
+                        else
+                            layerRotation = bottomRotationMatrix;
 
+                        if (x == -1)
+                            layerRotation = layerRotation * leftRotationMatrix;
+                        else if (x == 0) 
+                            layerRotation = layerRotation * centerRotationMatrix;
+                        else 
+                            layerRotation = layerRotation * rightRotationMatrix;
+
+                        SetMatrix(layerRotation, LayerRotationMatrixVariableName);
                         SetMatrix(modelMatrix, ModelMatrixVariableName);
                         DrawModelObject(rubiksCubePieces[index]);
                         index++;
