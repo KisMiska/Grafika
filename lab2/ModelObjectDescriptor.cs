@@ -32,7 +32,7 @@ namespace GrafikaSzeminarium
             var magenta = new float[] { 1.0f, 0.0f, 1.0f, 1.0f };
             var cyan = new float[] { 0.0f, 1.0f, 1.0f, 1.0f };
             var yellow = new float[] { 1.0f, 1.0f, 0.0f, 1.0f };
-            var gray = new float[] { 0.5f, 0.5f, 0.5f, 1.0f };
+            var gray = new float[] { 0.25f, 0.25f, 0.25f, 1.0f };
 
             for (int x = -1; x <= 1; x++)
             {
