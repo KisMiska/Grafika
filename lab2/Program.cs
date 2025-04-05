@@ -161,6 +161,18 @@ namespace GrafikaSzeminarium
                 case Key.E:
                     camera.MoveUp();
                     break;
+                case Key.Left:
+                    camera.DecreaseYaw();
+                    break;
+                case Key.Right:
+                    camera.IncreaseYaw();
+                    break;
+                case Key.Up:
+                    camera.IncreasePitch();
+                    break;
+                case Key.Down:
+                    camera.DecreasePitch();
+                    break;
             }
         }
 
