@@ -32,7 +32,7 @@ namespace Szeminarium
         {
             get
             {
-                return Vector3D<float>.UnitY;
+                return Vector3D.Normalize(Vector3D<float>.UnitY);
             }
         }
 
@@ -63,12 +63,12 @@ namespace Szeminarium
 
         public void MoveRight()
         {
-            Target += Vector3D.Cross(GetPointFromAngles(), UpVector) * MoveSize;
+            Target += Vector3D.Normalize(Vector3D.Cross(GetPointFromAngles(), UpVector)) * MoveSize;
         }
 
         public void MoveLeft()
         {
-            Target -= Vector3D.Cross(GetPointFromAngles(), UpVector) * MoveSize;
+            Target -= Vector3D.Normalize(Vector3D.Cross(GetPointFromAngles(), UpVector)) * MoveSize;
         }
 
         public void MoveUp()
@@ -93,12 +93,12 @@ namespace Szeminarium
 
         public void IncreasePitch()
         {
-            Pitch += AngleChangeStepSize;
+            Pitch = Math.Clamp(Pitch + AngleChangeStepSize, -Math.PI / 2 + 0.01, Math.PI / 2 - 0.01);
         }
 
         public void DecreasePitch()
         {
-            Pitch -= AngleChangeStepSize;
+            Pitch = Math.Clamp(Pitch - AngleChangeStepSize, -Math.PI / 2 + 0.01, Math.PI / 2 - 0.01);
         }
 
         private static Vector3D<float> GetPointFromAngles()
