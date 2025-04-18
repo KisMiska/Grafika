@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GrafikaSzeminarium
 {
-    internal class ModelObjectDescriptor:IDisposable
+    internal class ModelObjectDescriptor : IDisposable
     {
         private bool disposedValue;
 
@@ -20,6 +20,67 @@ namespace GrafikaSzeminarium
         public uint IndexArrayLength { get; private set; }
 
         private GL Gl;
+
+        private readonly static float[][] PredefinedColors = new float[][]
+        {
+            new float[] { 1.0f, 0.0f, 0.0f, 1.0f },
+            new float[] { 0.0f, 1.0f, 0.0f, 1.0f },
+            new float[] { 0.0f, 0.0f, 1.0f, 1.0f },
+            new float[] { 1.0f, 0.0f, 1.0f, 1.0f },
+            new float[] { 0.0f, 1.0f, 1.0f, 1.0f },
+            new float[] { 1.0f, 1.0f, 0.0f, 1.0f }
+        };
+
+        public readonly static string[] ColorNames = new string[] { "Red", "Green", "Blue", "Magenta", "Cyan", "Yellow" };
+        
+        public unsafe void UpdateFrontFaceColor(int colorIndex)
+        {
+            float[] colorArray = new float[] {
+               
+                1.0f, 0.0f, 0.0f, 1.0f,
+                1.0f, 0.0f, 0.0f, 1.0f,
+                1.0f, 0.0f, 0.0f, 1.0f,
+                1.0f, 0.0f, 0.0f, 1.0f,
+
+                PredefinedColors[colorIndex][0], PredefinedColors[colorIndex][1], PredefinedColors[colorIndex][2], PredefinedColors[colorIndex][3],
+                PredefinedColors[colorIndex][0], PredefinedColors[colorIndex][1], PredefinedColors[colorIndex][2], PredefinedColors[colorIndex][3],
+                PredefinedColors[colorIndex][0], PredefinedColors[colorIndex][1], PredefinedColors[colorIndex][2], PredefinedColors[colorIndex][3],
+                PredefinedColors[colorIndex][0], PredefinedColors[colorIndex][1], PredefinedColors[colorIndex][2], PredefinedColors[colorIndex][3],
+
+                0.0f, 0.0f, 1.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f,
+                0.0f, 0.0f, 1.0f, 1.0f,
+
+                1.0f, 0.0f, 1.0f, 1.0f,
+                1.0f, 0.0f, 1.0f, 1.0f,
+                1.0f, 0.0f, 1.0f, 1.0f,
+                1.0f, 0.0f, 1.0f, 1.0f,
+
+                0.0f, 1.0f, 1.0f, 1.0f,
+                0.0f, 1.0f, 1.0f, 1.0f,
+                0.0f, 1.0f, 1.0f, 1.0f,
+                0.0f, 1.0f, 1.0f, 1.0f,
+
+                1.0f, 1.0f, 0.0f, 1.0f,
+                1.0f, 1.0f, 0.0f, 1.0f,
+                1.0f, 1.0f, 0.0f, 1.0f,
+                1.0f, 1.0f, 0.0f, 1.0f,
+            };
+
+            Gl.DeleteBuffer(Colors);
+            
+            uint colors = Gl.GenBuffer();
+            Gl.BindVertexArray(Vao);
+            Gl.BindBuffer(GLEnum.ArrayBuffer, colors);
+            Gl.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)colorArray.AsSpan(), GLEnum.StaticDraw);
+           
+            Gl.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 0, null);
+            Gl.EnableVertexAttribArray(1);
+            Gl.BindBuffer(GLEnum.ArrayBuffer, 0);
+            
+            Colors = colors;
+        }
 
         public unsafe static ModelObjectDescriptor CreateCube(GL Gl)
         {
@@ -144,7 +205,7 @@ namespace GrafikaSzeminarium
             Gl.BufferData(GLEnum.ElementArrayBuffer, (ReadOnlySpan<uint>)indexArray.AsSpan(), GLEnum.StaticDraw);
             Gl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
 
-            return new ModelObjectDescriptor() {Vao= vao, Vertices = vertices, Colors = colors, Indices = indices, IndexArrayLength = (uint)indexArray.Length, Gl = Gl};
+            return new ModelObjectDescriptor() { Vao = vao, Vertices = vertices, Colors = colors, Indices = indices, IndexArrayLength = (uint)indexArray.Length, Gl = Gl };
 
         }
 

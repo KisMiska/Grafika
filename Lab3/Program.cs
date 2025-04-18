@@ -46,6 +46,8 @@ namespace GrafikaSzeminarium
 
         private static Vector3 backgroundColor = new Vector3(1.0f, 1.0f, 1.0f);
 
+        private static int selectedColorIndex = 1;
+
         private static uint program;
 
         static void Main(string[] args)
@@ -92,6 +94,7 @@ namespace GrafikaSzeminarium
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
             cube = ModelObjectDescriptor.CreateCube(Gl);
+            cube.UpdateFrontFaceColor(selectedColorIndex);
 
             Gl.ClearColor(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, 1.0f);
             
@@ -235,6 +238,11 @@ namespace GrafikaSzeminarium
             if (ImGuiNET.ImGui.SliderFloat3("RGB", ref backgroundColor, 0.0f, 1.0f))
             {
                 Gl.ClearColor(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, 1.0f);
+            }
+            if (ImGuiNET.ImGui.Combo("Front Face Color", ref selectedColorIndex, ModelObjectDescriptor.ColorNames, ModelObjectDescriptor.ColorNames.Length))
+            {
+                cube.UpdateFrontFaceColor(selectedColorIndex);
+                
             }
             ImGuiNET.ImGui.End();
 
