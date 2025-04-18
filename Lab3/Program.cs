@@ -44,6 +44,7 @@ namespace GrafikaSzeminarium
         private static Vector3 specularStrength = new Vector3(0.6f, 0.6f, 0.6f);
 
 
+        private static Vector3 backgroundColor = new Vector3(1.0f, 1.0f, 1.0f);
 
         private static uint program;
 
@@ -92,7 +93,7 @@ namespace GrafikaSzeminarium
 
             cube = ModelObjectDescriptor.CreateCube(Gl);
 
-            Gl.ClearColor(System.Drawing.Color.White);
+            Gl.ClearColor(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, 1.0f);
             
             Gl.Enable(EnableCap.CullFace);
             Gl.CullFace(TriangleFace.Back);
@@ -230,6 +231,11 @@ namespace GrafikaSzeminarium
             ImGuiNET.ImGui.SliderFloat3("Ambient", ref ambientStrength, 0.0f, 1.0f);
             ImGuiNET.ImGui.SliderFloat3("Diffuse", ref diffuseStrength, 0.0f, 1.0f);
             ImGuiNET.ImGui.SliderFloat3("Specular", ref specularStrength, 0.0f, 1.0f);
+            ImGuiNET.ImGui.Text("Background Color");
+            if (ImGuiNET.ImGui.SliderFloat3("RGB", ref backgroundColor, 0.0f, 1.0f))
+            {
+                Gl.ClearColor(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, 1.0f);
+            }
             ImGuiNET.ImGui.End();
 
             imGuiController.Render();
