@@ -18,7 +18,9 @@ namespace GrafikaSzeminarium
 
         private static ImGuiController imGuiController;
 
-        private static ModelObjectDescriptor cube;
+        //private static ModelObjectDescriptor cube;
+        private static ModelObjectDescriptor barrel1;
+        //private static ModelObjectDescriptor barrel;
 
         private static CameraDescriptor camera = new CameraDescriptor();
 
@@ -57,7 +59,7 @@ namespace GrafikaSzeminarium
 
         private static void GraphicWindow_Closing()
         {
-            cube.Dispose();
+            barrel1.Dispose();
             Gl.DeleteProgram(program);
         }
 
@@ -82,10 +84,10 @@ namespace GrafikaSzeminarium
 
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
-            cube = ModelObjectDescriptor.CreateCube(Gl);
+            barrel1 = ModelObjectDescriptor.Create(Gl);
 
             Gl.ClearColor(System.Drawing.Color.White);
-            
+
             Gl.Enable(EnableCap.CullFace);
             Gl.CullFace(TriangleFace.Back);
 
@@ -186,7 +188,7 @@ namespace GrafikaSzeminarium
             Gl.UseProgram(program);
 
             SetUniform3(LightColorVariableName, new Vector3(1f, 1f, 1f));
-            SetUniform3(LightPositionVariableName, new Vector3(0f, 1.2f, 0f));
+            SetUniform3(LightPositionVariableName, new Vector3(camera.Position.X /*+ */, camera.Position.Y, camera.Position.Z));
             SetUniform3(ViewPositionVariableName, new Vector3(camera.Position.X, camera.Position.Y, camera.Position.Z));
             SetUniform1(ShinenessVariableName, shininess);
 
@@ -196,20 +198,7 @@ namespace GrafikaSzeminarium
             var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView<float>((float)(Math.PI / 2), 1024f / 768f, 0.1f, 100f);
             SetMatrix(projectionMatrix, ProjectionMatrixVariableName);
 
-
-            var modelMatrixCenterCube = Matrix4X4.CreateScale((float)cubeArrangementModel.CenterCubeScale);
-            SetModelMatrix(modelMatrixCenterCube);
-            DrawModelObject(cube);
-
-            Matrix4X4<float> diamondScale = Matrix4X4.CreateScale(0.25f);
-            Matrix4X4<float> rotx = Matrix4X4.CreateRotationX((float)Math.PI / 4f);
-            Matrix4X4<float> rotz = Matrix4X4.CreateRotationZ((float)Math.PI / 4f);
-            Matrix4X4<float> roty = Matrix4X4.CreateRotationY((float)cubeArrangementModel.DiamondCubeLocalAngle);
-            Matrix4X4<float> trans = Matrix4X4.CreateTranslation(1f, 1f, 0f);
-            Matrix4X4<float> rotGlobalY = Matrix4X4.CreateRotationY((float)cubeArrangementModel.DiamondCubeGlobalYAngle);
-            Matrix4X4<float> dimondCubeModelMatrix = diamondScale * rotx * rotz * roty * trans * rotGlobalY;
-            SetModelMatrix(dimondCubeModelMatrix);
-            DrawModelObject(cube);
+            DrawBarrel(barrel1, 2.0f);
 
             //ImGuiNET.ImGui.ShowDemoWindow();
             ImGuiNET.ImGui.Begin("Lighting", ImGuiNET.ImGuiWindowFlags.AlwaysAutoResize | ImGuiNET.ImGuiWindowFlags.NoCollapse);
@@ -219,6 +208,18 @@ namespace GrafikaSzeminarium
             imGuiController.Render();
         }
 
+        private static void DrawBarrel(ModelObjectDescriptor barrel, float offset)
+        {
+            for (int i = 0; i < barrel.DeszkakCount; i++)
+            {
+                Matrix4X4<float> modelMatrix = barrel.GetDeszkaTransformMatrix(i);
+                
+                modelMatrix = modelMatrix * Matrix4X4.CreateTranslation(0f, offset, 0f);
+                
+                SetModelMatrix(modelMatrix);
+                DrawModelObject(barrel);
+            }
+        }
         private static unsafe void SetModelMatrix(Matrix4X4<float> modelMatrix)
         {
             SetMatrix(modelMatrix, ModelMatrixVariableName);
