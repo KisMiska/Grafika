@@ -226,6 +226,10 @@ namespace GrafikaSzeminarium
             //ImGuiNET.ImGui.ShowDemoWindow();
             ImGuiNET.ImGui.Begin("Lighting", ImGuiNET.ImGuiWindowFlags.AlwaysAutoResize | ImGuiNET.ImGuiWindowFlags.NoCollapse);
             ImGuiNET.ImGui.SliderFloat("Shininess", ref shininess, 5, 100);
+            ImGuiNET.ImGui.Text("Illumination Components");
+            ImGuiNET.ImGui.SliderFloat3("Ambient", ref ambientStrength, 0.0f, 1.0f);
+            ImGuiNET.ImGui.SliderFloat3("Diffuse", ref diffuseStrength, 0.0f, 1.0f);
+            ImGuiNET.ImGui.SliderFloat3("Specular", ref specularStrength, 0.0f, 1.0f);
             ImGuiNET.ImGui.End();
 
             imGuiController.Render();
