@@ -28,33 +28,63 @@ namespace GrafikaSzeminarium
         #version 330 core
         layout (location = 0) in vec3 vPos;
         layout (location = 1) in vec4 vCol;
-
+        
         uniform mat4 uModel;
         uniform mat4 uView;
         uniform mat4 uProjection;
         uniform mat4 uLayerRotation;
-
+        
         out vec4 outCol;
-
+        out vec3 fragPos;
+        out vec3 normal;
+        
         void main()
         {
             outCol = vCol;
-            gl_Position = uProjection * uView * uLayerRotation * uModel * vec4(vPos.x, vPos.y, vPos.z, 1.0);
+            vec4 worldPos = uLayerRotation * uModel * vec4(vPos, 1.0);
+            fragPos = worldPos.xyz;
+            
+            normal = normalize(mat3(uLayerRotation * uModel) * normalize(vPos));
+            
+            gl_Position = uProjection * uView * worldPos;
         }";
 
 
         private static readonly string FragmentShaderSource = @"
         #version 330 core
         out vec4 FragColor;
-		
-		in vec4 outCol;
-
+        
+        in vec4 outCol;
+        in vec3 fragPos;
+        in vec3 normal;
+        
+        uniform vec3 lightPos;
+        uniform vec3 lightColor;
+        uniform vec3 viewPos;
+        
         void main()
         {
-            FragColor = outCol;
+            float ambientStrength = 0.3;
+            vec3 ambient = ambientStrength * lightColor;
+            
+            vec3 norm = normalize(normal);
+            vec3 lightDir = normalize(lightPos - fragPos);
+            float diff = max(dot(norm, lightDir), 0.0);
+            vec3 diffuse = diff * lightColor;
+            
+            float specularStrength = 0.5;
+            vec3 viewDir = normalize(viewPos - fragPos);
+            vec3 reflectDir = reflect(-lightDir, norm);
+            float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+            vec3 specular = specularStrength * spec * lightColor;
+            
+            vec3 result = (ambient + diffuse + specular) * outCol.rgb;
+            FragColor = vec4(result, outCol.a);
         }
         ";
 
+        private static Vector3D<float> lightPosition = new(2.0f, 2.0f, 2.0f);
+        private static Vector3D<float> lightColor = new(1.0f, 1.0f, 1.0f);
         private static uint program;
 
         static void Main(string[] args)
