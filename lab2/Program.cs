@@ -3,6 +3,8 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Szeminarium;
+using System.Numerics;
+using Silk.NET.OpenGL.Extensions.ImGui;
 
 namespace GrafikaSzeminarium
 {
@@ -19,10 +21,21 @@ namespace GrafikaSzeminarium
 
         private static CubeArrangementModel cubeArrangementModel = new CubeArrangementModel();
 
+        private static ImGuiController imGuiController;
+
         private const string ModelMatrixVariableName = "uModel";
         private const string ViewMatrixVariableName = "uView";
         private const string ProjectionMatrixVariableName = "uProjection";
         private const string LayerRotationMatrixVariableName = "uLayerRotation";
+        private const string LightPositionVariableName = "lightPos";
+        private const string LightColorVariableName = "lightColor";
+        private const string ViewPositionVariableName = "viewPos";
+
+        private static Vector3 lightPosition = new(2.0f, 2.0f, 2.0f);
+        private static Vector3 lightColor = new(1.0f, 1.0f, 1.0f);
+        private static string lightPosX = "2.0";
+        private static string lightPosY = "2.0";
+        private static string lightPosZ = "2.0";
 
         private static readonly string VertexShaderSource = @"
         #version 330 core
@@ -64,34 +77,36 @@ namespace GrafikaSzeminarium
         
         void main()
         {
+            // Ambient
             float ambientStrength = 0.3;
             vec3 ambient = ambientStrength * lightColor;
             
+            // Diffuse
             vec3 norm = normalize(normal);
             vec3 lightDir = normalize(lightPos - fragPos);
             float diff = max(dot(norm, lightDir), 0.0);
             vec3 diffuse = diff * lightColor;
             
+            // Specular
             float specularStrength = 0.5;
             vec3 viewDir = normalize(viewPos - fragPos);
             vec3 reflectDir = reflect(-lightDir, norm);
             float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
             vec3 specular = specularStrength * spec * lightColor;
             
+            // Combine results
             vec3 result = (ambient + diffuse + specular) * outCol.rgb;
             FragColor = vec4(result, outCol.a);
         }
         ";
 
-        private static Vector3D<float> lightPosition = new(2.0f, 2.0f, 2.0f);
-        private static Vector3D<float> lightColor = new(1.0f, 1.0f, 1.0f);
         private static uint program;
 
         static void Main(string[] args)
         {
             WindowOptions windowOptions = WindowOptions.Default;
             windowOptions.Title = "Grafika szeminárium";
-            windowOptions.Size = new Silk.NET.Maths.Vector2D<int>(500, 500);
+            windowOptions.Size = new Silk.NET.Maths.Vector2D<int>(1024, 1024);
 
             graphicWindow = Window.Create(windowOptions);
 
@@ -117,6 +132,9 @@ namespace GrafikaSzeminarium
             Gl = graphicWindow.CreateOpenGL();
 
             var inputContext = graphicWindow.CreateInput();
+
+            imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
+
             foreach (var keyboard in inputContext.Keyboards)
             {
                 keyboard.KeyDown += Keyboard_KeyDown;
@@ -250,6 +268,7 @@ namespace GrafikaSzeminarium
             // NO OpenGL
             // make it threadsafe
             cubeArrangementModel.AdvanceTime(deltaTime);
+            imGuiController.Update((float)deltaTime);
         }
 
         private static unsafe void GraphicWindow_Render(double deltaTime)
@@ -265,7 +284,15 @@ namespace GrafikaSzeminarium
             var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView<float>((float)(Math.PI / 2), 1024f / 768f, 0.1f, 100f);
             SetMatrix(projectionMatrix, ProjectionMatrixVariableName);
 
-            //var identityMatrix = Matrix4X4<float>.Identity;
+            int lightPosLocation = Gl.GetUniformLocation(program, LightPositionVariableName);
+            Gl.Uniform3(lightPosLocation, lightPosition.X, lightPosition.Y, lightPosition.Z);
+
+            int lightColorLocation = Gl.GetUniformLocation(program, LightColorVariableName);
+            Gl.Uniform3(lightColorLocation, lightColor.X, lightColor.Y, lightColor.Z);
+
+            int viewPosLocation = Gl.GetUniformLocation(program, ViewPositionVariableName);
+            Gl.Uniform3(viewPosLocation, camera.Position.X, camera.Position.Y, camera.Position.Z);
+
             var topRotationMatrix = Matrix4X4.CreateRotationY((float)(cubeArrangementModel.TopLayerRotationAngle * Math.PI / 180.0));
             var middleRotationMatrix = Matrix4X4.CreateRotationY((float)(cubeArrangementModel.MiddleLayerRotationAngle * Math.PI / 180.0));
             var bottomRotationMatrix = Matrix4X4.CreateRotationY((float)(cubeArrangementModel.BottomLayerRotationAngle * Math.PI / 180.0));
@@ -298,9 +325,9 @@ namespace GrafikaSzeminarium
 
                         if (x == -1)
                             layerRotation = layerRotation * leftRotationMatrix;
-                        else if (x == 0) 
+                        else if (x == 0)
                             layerRotation = layerRotation * centerRotationMatrix;
-                        else 
+                        else
                             layerRotation = layerRotation * rightRotationMatrix;
 
                         SetMatrix(layerRotation, LayerRotationMatrixVariableName);
@@ -310,6 +337,75 @@ namespace GrafikaSzeminarium
                     }
                 }
             }
+
+            ImGuiNET.ImGui.Begin("Lighting", ImGuiNET.ImGuiWindowFlags.AlwaysAutoResize | ImGuiNET.ImGuiWindowFlags.NoCollapse);
+            ImGuiNET.ImGui.Text("Light Color");
+
+            float[] lightColorArr = new float[] { lightColor.X, lightColor.Y, lightColor.Z };
+
+            ImGuiNET.ImGui.SliderFloat("Red", ref lightColorArr[0], 0.0f, 1.0f);
+            ImGuiNET.ImGui.SliderFloat("Green", ref lightColorArr[1], 0.0f, 1.0f);
+            ImGuiNET.ImGui.SliderFloat("Blue", ref lightColorArr[2], 0.0f, 1.0f);
+
+            lightColor = new Vector3(lightColorArr[0], lightColorArr[1], lightColorArr[2]);
+
+            ImGuiNET.ImGui.Text("Light Position");
+
+            ImGuiNET.ImGui.InputText("X", ref lightPosX, 10);
+            ImGuiNET.ImGui.InputText("Y", ref lightPosY, 10);
+            ImGuiNET.ImGui.InputText("Z", ref lightPosZ, 10);
+
+            if (float.TryParse(lightPosX, out float xx) && float.TryParse(lightPosY, out float yy) && float.TryParse(lightPosZ, out float zz))
+            {
+                lightPosition = new Vector3(xx, yy, zz);
+            }
+
+            ImGuiNET.ImGui.Text("Cube Rotations");
+            if (ImGuiNET.ImGui.Button("Top Layer Right"))
+                cubeArrangementModel.StartTopLayerRotationRight();
+
+            ImGuiNET.ImGui.SameLine();
+            if (ImGuiNET.ImGui.Button("Top Layer Left"))
+                cubeArrangementModel.StartTopLayerRotationLeft();
+
+            if (ImGuiNET.ImGui.Button("Middle Layer Right"))
+                cubeArrangementModel.StartMiddleLayerRotationRight();
+
+            ImGuiNET.ImGui.SameLine();
+            if (ImGuiNET.ImGui.Button("Middle Layer Left"))
+                cubeArrangementModel.StartMiddleLayerRotationLeft();
+
+            if (ImGuiNET.ImGui.Button("Bottom Layer Right"))
+                cubeArrangementModel.StartBottomLayerRotationRight();
+
+            ImGuiNET.ImGui.SameLine();
+            if (ImGuiNET.ImGui.Button("Bottom Layer Left"))
+                cubeArrangementModel.StartBottomLayerRotationLeft();
+
+            if (ImGuiNET.ImGui.Button("Left Layer Up"))
+                cubeArrangementModel.StartLeftLayerRotationUp();
+
+            ImGuiNET.ImGui.SameLine();
+            if (ImGuiNET.ImGui.Button("Left Layer Down"))
+                cubeArrangementModel.StartLeftLayerRotationDown();
+
+            if (ImGuiNET.ImGui.Button("Center Layer Up"))
+                cubeArrangementModel.StartCenterLayerRotationUp();
+
+            ImGuiNET.ImGui.SameLine();
+            if (ImGuiNET.ImGui.Button("Center Layer Down"))
+                cubeArrangementModel.StartCenterLayerRotationDown();
+
+            if (ImGuiNET.ImGui.Button("Right Layer Up"))
+                cubeArrangementModel.StartRightLayerRotationUp();
+
+            ImGuiNET.ImGui.SameLine();
+            if (ImGuiNET.ImGui.Button("Right Layer Down"))
+                cubeArrangementModel.StartRightLayerRotationDown();
+
+            ImGuiNET.ImGui.End();
+
+            imGuiController.Render();
         }
 
         private static unsafe void DrawModelObject(ModelObjectDescriptor modelObject)
