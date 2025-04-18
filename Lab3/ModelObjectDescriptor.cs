@@ -35,9 +35,9 @@ namespace GrafikaSzeminarium
         {
             const int deszkaCount = 18;
             float deszkaAngle = 20.0f;
-            float deszkaAngleRadians = deszkaAngle * MathF.PI / 180.0f;
+            float deszkaAngleRadians = 2 * MathF.PI / deszkaCount;
             float halfAngleRadians = deszkaAngleRadians / 2.0f;
-            float radius = 0.5f / MathF.Sin(halfAngleRadians);
+            float radius = 0.5f / MathF.Tan(deszkaAngleRadians / 2);
 
             ModelObjectDescriptor descriptor = new ModelObjectDescriptor()
             {
