@@ -88,8 +88,8 @@ namespace GrafikaSzeminarium
 
             Gl.ClearColor(System.Drawing.Color.White);
 
-            Gl.Enable(EnableCap.CullFace);
-            Gl.CullFace(TriangleFace.Back);
+            //Gl.Enable(EnableCap.CullFace);
+            //Gl.CullFace(TriangleFace.Back);
 
             Gl.Enable(EnableCap.DepthTest);
             Gl.DepthFunc(DepthFunction.Lequal);
