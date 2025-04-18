@@ -29,9 +29,9 @@ namespace GrafikaSzeminarium
         public float DeszkakAngle { get; private set; }
         public float Radius { get; private set; }
 
-        //public bool other
+        public bool secondBarrel {get ; private set; }
 
-        public unsafe static ModelObjectDescriptor Create(GL Gl)
+        public unsafe static ModelObjectDescriptor Create(GL Gl, bool secondBarrel)
         {
             const int deszkaCount = 18;
             float deszkaAngle = 20.0f;
@@ -60,6 +60,32 @@ namespace GrafikaSzeminarium
                 // Jobb alsó csúcs
                 0.5f, -1.0f, radius, 0, 0, 1
             };
+
+            if(secondBarrel)
+            {
+                float normalX = MathF.Sin(halfAngleRadians);
+                float normalZ = MathF.Cos(halfAngleRadians);
+
+                vertexArray[3] = normalX;
+                vertexArray[4] = 0;
+                vertexArray[5] = normalZ;
+
+                // Bal felső
+                vertexArray[9] = normalX;
+                vertexArray[10] = 0;
+                vertexArray[11] = normalZ;
+
+                // Jobb felső
+                vertexArray[15] = normalX;
+                vertexArray[16] = 0;
+                vertexArray[17] = normalZ;
+
+                // Jobb alsó
+                vertexArray[21] = normalX;
+                vertexArray[22] = 0;
+                vertexArray[23] = normalZ;
+
+            }
 
             float[] colorArray = new float[] {
                 0.0f, 1.0f, 0.0f, 1.0f,

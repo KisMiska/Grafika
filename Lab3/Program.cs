@@ -20,7 +20,7 @@ namespace GrafikaSzeminarium
 
         //private static ModelObjectDescriptor cube;
         private static ModelObjectDescriptor barrel1;
-        //private static ModelObjectDescriptor barrel;
+        private static ModelObjectDescriptor barrel2;
 
         private static CameraDescriptor camera = new CameraDescriptor();
 
@@ -60,6 +60,7 @@ namespace GrafikaSzeminarium
         private static void GraphicWindow_Closing()
         {
             barrel1.Dispose();
+            barrel2.Dispose();
             Gl.DeleteProgram(program);
         }
 
@@ -84,7 +85,8 @@ namespace GrafikaSzeminarium
 
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
-            barrel1 = ModelObjectDescriptor.Create(Gl);
+            barrel1 = ModelObjectDescriptor.Create(Gl, false);
+            barrel2 = ModelObjectDescriptor.Create(Gl, true);
 
             Gl.ClearColor(System.Drawing.Color.White);
 
@@ -199,6 +201,7 @@ namespace GrafikaSzeminarium
             SetMatrix(projectionMatrix, ProjectionMatrixVariableName);
 
             DrawBarrel(barrel1, 2.0f);
+            DrawBarrel(barrel2, -2.0f);
 
             //ImGuiNET.ImGui.ShowDemoWindow();
             ImGuiNET.ImGui.Begin("Lighting", ImGuiNET.ImGuiWindowFlags.AlwaysAutoResize | ImGuiNET.ImGuiWindowFlags.NoCollapse);
