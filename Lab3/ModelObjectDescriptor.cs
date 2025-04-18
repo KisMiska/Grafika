@@ -109,6 +109,16 @@ namespace GrafikaSzeminarium
             return descriptor;
         }
 
+        public Matrix4X4<float> GetDeszkaTransformMatrix(int index)
+        {
+            float angle = index * DeszkakAngle;
+            float angleRadians = angle * MathF.PI / 180.0f;
+            
+            Matrix4X4<float> rotationMatrix = Matrix4X4.CreateRotationY<float>(angleRadians);
+            
+            return rotationMatrix;
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
