@@ -18,9 +18,9 @@ out vec3 outNormal;
 out vec3 outWorldPosition;
 
 void main() {
-    
     vec3 worldPos = vec3(uModel * vec4(vPos.x, vPos.y, vPos.z, 1.0));
-    
+    vec3 norm = normalize(uNormal * vNormal);
+
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * uLightColor;
     
@@ -36,9 +36,9 @@ void main() {
     vec3 specular = specularStrength * spec * uLightColor;
     
     vec3 result = (ambient + diffuse + specular) * vCol.rgb;
-   
+    
     outCol = vec4(result, vCol.a);
-    outNormal = uNormal * vNormal; 
+    outNormal = norm;
     outWorldPosition = worldPos;
     
     gl_Position = uProjection * uView * uModel * vec4(vPos.x, vPos.y, vPos.z, 1.0);

@@ -97,7 +97,7 @@ namespace GrafikaSzeminarium
 
             phongProgram = CreateShaderProgram(GetEmbeddedResourceAsString("Shaders.VertexShader.vert"), GetEmbeddedResourceAsString("Shaders.FragmentShader.frag"));
 
-            gourardProgram = CreateShaderProgram(GetEmbeddedResourceAsString("Shaders.GouraudVertexShader.vert"), GetEmbeddedResourceAsString("Shaders.GouraudFragmentShader.frag"));
+            gourardProgram = CreateShaderProgram(GetEmbeddedResourceAsString("Shaders.GourardVertexShader.vert"), GetEmbeddedResourceAsString("Shaders.GourardFragmentShader.frag"));
 
         }
 
@@ -192,19 +192,19 @@ namespace GrafikaSzeminarium
             uint currentProgram = usePhongShading ? phongProgram : gourardProgram;
             Gl.UseProgram(currentProgram);
 
-            SetUniform3(LightColorVariableName, new Vector3(1f, 1f, 1f));
-            SetUniform3(LightPositionVariableName, new Vector3(camera.Position.X /*+ */, camera.Position.Y, camera.Position.Z));
-            SetUniform3(ViewPositionVariableName, new Vector3(camera.Position.X, camera.Position.Y, camera.Position.Z));
-            SetUniform1(ShinenessVariableName, shininess);
+            SetUniform3(currentProgram, LightColorVariableName, new Vector3(1f, 1f, 1f));
+            SetUniform3(currentProgram, LightPositionVariableName, new Vector3(camera.Position.X /*+ */, camera.Position.Y, camera.Position.Z));
+            SetUniform3(currentProgram, ViewPositionVariableName, new Vector3(camera.Position.X, camera.Position.Y, camera.Position.Z));
+            SetUniform1(currentProgram, ShinenessVariableName, shininess);
 
             var viewMatrix = Matrix4X4.CreateLookAt(camera.Position, camera.Target, camera.UpVector);
-            SetMatrix(viewMatrix, ViewMatrixVariableName);
+            SetMatrix(currentProgram, viewMatrix, ViewMatrixVariableName);
 
             var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView<float>((float)(Math.PI / 2), 1024f / 768f, 0.1f, 100f);
-            SetMatrix(projectionMatrix, ProjectionMatrixVariableName);
+            SetMatrix(currentProgram, projectionMatrix, ProjectionMatrixVariableName);
 
-            DrawBarrel(barrel1, 1.5f);
-            DrawBarrel(barrel2, -1.5f);
+            DrawBarrel(currentProgram, barrel1, 1.5f);
+            DrawBarrel(currentProgram, barrel2, -1.5f);
 
             //ImGuiNET.ImGui.ShowDemoWindow();
             ImGuiNET.ImGui.Begin("Lighting", ImGuiNET.ImGuiWindowFlags.AlwaysAutoResize | ImGuiNET.ImGuiWindowFlags.NoCollapse);
@@ -213,11 +213,10 @@ namespace GrafikaSzeminarium
             ImGuiNET.ImGui.SameLine();
             if (ImGuiNET.ImGui.RadioButton("Gouraud Shading", !usePhongShading)) usePhongShading = false;
             ImGuiNET.ImGui.End();
-
             imGuiController.Render();
         }
 
-        private static void DrawBarrel(ModelObjectDescriptor barrel, float offset)
+        private static void DrawBarrel(uint program, ModelObjectDescriptor barrel, float offset)
         {
             for (int i = 0; i < barrel.DeszkakCount; i++)
             {
@@ -225,13 +224,13 @@ namespace GrafikaSzeminarium
 
                 modelMatrix = modelMatrix * Matrix4X4.CreateTranslation(0f, offset, 0f);
 
-                SetModelMatrix(modelMatrix);
+                SetModelMatrix(program, modelMatrix);
                 DrawModelObject(barrel);
             }
         }
-        private static unsafe void SetModelMatrix(Matrix4X4<float> modelMatrix)
+        private static unsafe void SetModelMatrix(uint program, Matrix4X4<float> modelMatrix)
         {
-            SetMatrix(modelMatrix, ModelMatrixVariableName);
+            SetMatrix(program, modelMatrix, ModelMatrixVariableName);
 
             // set also the normal matrix
             int location = Gl.GetUniformLocation(program, NormalMatrixVariableName);
@@ -255,7 +254,7 @@ namespace GrafikaSzeminarium
             CheckError();
         }
 
-        private static unsafe void SetUniform1(string uniformName, float uniformValue)
+        private static unsafe void SetUniform1(uint program, string uniformName, float uniformValue)
         {
             int location = Gl.GetUniformLocation(program, uniformName);
             if (location == -1)
@@ -267,7 +266,7 @@ namespace GrafikaSzeminarium
             CheckError();
         }
 
-        private static unsafe void SetUniform3(string uniformName, Vector3 uniformValue)
+        private static unsafe void SetUniform3(uint program, string uniformName, Vector3 uniformValue)
         {
             int location = Gl.GetUniformLocation(program, uniformName);
             if (location == -1)
@@ -288,7 +287,7 @@ namespace GrafikaSzeminarium
             Gl.BindVertexArray(0);
         }
 
-        private static unsafe void SetMatrix(Matrix4X4<float> mx, string uniformName)
+        private static unsafe void SetMatrix(uint program, Matrix4X4<float> mx, string uniformName)
         {
             int location = Gl.GetUniformLocation(program, uniformName);
             if (location == -1)
