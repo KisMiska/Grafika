@@ -146,7 +146,6 @@ namespace GrafikaSzeminarium
                 return text;
             }
         }
-
         private static void Keyboard_KeyDown(IKeyboard keyboard, Key key, int arg3)
         {
             switch (key)
