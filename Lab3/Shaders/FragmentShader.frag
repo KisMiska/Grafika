@@ -6,7 +6,6 @@ uniform vec3 uLightPos;
 uniform vec3 uViewPos;
 
 uniform float uShininess;
-
 		
 in vec4 outCol;
 in vec3 outNormal;

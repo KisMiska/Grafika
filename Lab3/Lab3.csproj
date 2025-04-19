@@ -13,6 +13,8 @@
     <PackageReference Include="Silk.NET.OpenGL.Extensions.ImGui" Version="2.22.0" />
     <EmbeddedResource Include="Shaders\VertexShader.vert" />
     <EmbeddedResource Include="Shaders\FragmentShader.frag" />
+    <EmbeddedResource Include="Shaders\GourardVertexShader.vert" />
+    <EmbeddedResource Include="Shaders\GourardFragmentShader.frag" />
   </ItemGroup>
 
 </Project>
