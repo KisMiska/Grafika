@@ -95,9 +95,9 @@ namespace GrafikaSzeminarium
             Gl.Enable(EnableCap.DepthTest);
             Gl.DepthFunc(DepthFunction.Lequal);
 
-            phongProgram = CreateShaderProgram( GetEmbeddedResourceAsString("Shaders.VertexShader.vert"),GetEmbeddedResourceAsString("Shaders.FragmentShader.frag"));
+            phongProgram = CreateShaderProgram(GetEmbeddedResourceAsString("Shaders.VertexShader.vert"), GetEmbeddedResourceAsString("Shaders.FragmentShader.frag"));
 
-            gourardProgram = CreateShaderProgram(GetEmbeddedResourceAsString("Shaders.GouraudVertexShader.vert"),GetEmbeddedResourceAsString("Shaders.GouraudFragmentShader.frag"));
+            gourardProgram = CreateShaderProgram(GetEmbeddedResourceAsString("Shaders.GouraudVertexShader.vert"), GetEmbeddedResourceAsString("Shaders.GouraudFragmentShader.frag"));
 
         }
 
@@ -109,14 +109,12 @@ namespace GrafikaSzeminarium
             Gl.ShaderSource(vshader, vertexShaderSource);
             Gl.CompileShader(vshader);
             Gl.GetShader(vshader, ShaderParameterName.CompileStatus, out int vStatus);
-            if (vStatus != (int)GLEnum.True)
-                throw new Exception("Vertex shader failed to compile: " + Gl.GetShaderInfoLog(vshader));
+            if (vStatus != (int)GLEnum.True) throw new Exception("Vertex shader failed to compile: " + Gl.GetShaderInfoLog(vshader));
 
             Gl.ShaderSource(fshader, fragmentShaderSource);
             Gl.CompileShader(fshader);
             Gl.GetShader(fshader, ShaderParameterName.CompileStatus, out int fStatus);
-            if (fStatus != (int)GLEnum.True)
-                throw new Exception("Fragment shader failed to compile: " + Gl.GetShaderInfoLog(fshader));
+            if (fStatus != (int)GLEnum.True) throw new Exception("Fragment shader failed to compile: " + Gl.GetShaderInfoLog(fshader));
 
             uint program = Gl.CreateProgram();
             Gl.AttachShader(program, vshader);
@@ -191,7 +189,8 @@ namespace GrafikaSzeminarium
             Gl.Clear(ClearBufferMask.ColorBufferBit);
             Gl.Clear(ClearBufferMask.DepthBufferBit);
 
-            Gl.UseProgram(program);
+            uint currentProgram = usePhongShading ? phongProgram : gourardProgram;
+            Gl.UseProgram(currentProgram);
 
             SetUniform3(LightColorVariableName, new Vector3(1f, 1f, 1f));
             SetUniform3(LightPositionVariableName, new Vector3(camera.Position.X /*+ */, camera.Position.Y, camera.Position.Z));
