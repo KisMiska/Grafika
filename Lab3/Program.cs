@@ -17,8 +17,6 @@ namespace GrafikaSzeminarium
         private static GL Gl;
 
         private static ImGuiController imGuiController;
-
-        //private static ModelObjectDescriptor cube;
         private static ModelObjectDescriptor barrel1;
         private static ModelObjectDescriptor barrel2;
 
@@ -39,7 +37,9 @@ namespace GrafikaSzeminarium
 
         private static float shininess = 50;
 
-        private static uint program;
+        private static uint phongProgram;
+        private static uint gourardProgram;
+        private static bool usePhongShading = true;
 
         static void Main(string[] args)
         {
@@ -61,7 +61,8 @@ namespace GrafikaSzeminarium
         {
             barrel1.Dispose();
             barrel2.Dispose();
-            Gl.DeleteProgram(program);
+            Gl.DeleteProgram(phongProgram);
+            Gl.DeleteProgram(gourardProgram);
         }
 
         private static void GraphicWindow_Load()
@@ -81,8 +82,6 @@ namespace GrafikaSzeminarium
                 Gl.Viewport(s);
             };
 
-
-
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
             barrel1 = ModelObjectDescriptor.Create(Gl, false);
@@ -96,23 +95,30 @@ namespace GrafikaSzeminarium
             Gl.Enable(EnableCap.DepthTest);
             Gl.DepthFunc(DepthFunction.Lequal);
 
+            phongProgram = CreateShaderProgram( GetEmbeddedResourceAsString("Shaders.VertexShader.vert"),GetEmbeddedResourceAsString("Shaders.FragmentShader.frag"));
 
+            gourardProgram = CreateShaderProgram(GetEmbeddedResourceAsString("Shaders.GouraudVertexShader.vert"),GetEmbeddedResourceAsString("Shaders.GouraudFragmentShader.frag"));
+
+        }
+
+        private static uint CreateShaderProgram(string vertexShaderSource, string fragmentShaderSource)
+        {
             uint vshader = Gl.CreateShader(ShaderType.VertexShader);
             uint fshader = Gl.CreateShader(ShaderType.FragmentShader);
 
-            Gl.ShaderSource(vshader, GetEmbeddedResourceAsString("Shaders.VertexShader.vert"));
+            Gl.ShaderSource(vshader, vertexShaderSource);
             Gl.CompileShader(vshader);
             Gl.GetShader(vshader, ShaderParameterName.CompileStatus, out int vStatus);
             if (vStatus != (int)GLEnum.True)
                 throw new Exception("Vertex shader failed to compile: " + Gl.GetShaderInfoLog(vshader));
 
-            Gl.ShaderSource(fshader, GetEmbeddedResourceAsString("Shaders.FragmentShader.frag"));
+            Gl.ShaderSource(fshader, fragmentShaderSource);
             Gl.CompileShader(fshader);
             Gl.GetShader(fshader, ShaderParameterName.CompileStatus, out int fStatus);
             if (fStatus != (int)GLEnum.True)
                 throw new Exception("Fragment shader failed to compile: " + Gl.GetShaderInfoLog(fshader));
 
-            program = Gl.CreateProgram();
+            uint program = Gl.CreateProgram();
             Gl.AttachShader(program, vshader);
             Gl.AttachShader(program, fshader);
             Gl.LinkProgram(program);
@@ -121,16 +127,14 @@ namespace GrafikaSzeminarium
             Gl.DetachShader(program, fshader);
             Gl.DeleteShader(vshader);
             Gl.DeleteShader(fshader);
-            if ((ErrorCode)Gl.GetError() != ErrorCode.NoError)
-            {
-
-            }
 
             Gl.GetProgram(program, GLEnum.LinkStatus, out var status);
             if (status == 0)
             {
                 Console.WriteLine($"Error linking shader {Gl.GetProgramInfoLog(program)}");
             }
+
+            return program;
         }
 
         private static string GetEmbeddedResourceAsString(string resourceRelativePath)
@@ -216,9 +220,9 @@ namespace GrafikaSzeminarium
             for (int i = 0; i < barrel.DeszkakCount; i++)
             {
                 Matrix4X4<float> modelMatrix = barrel.GetDeszkaTransformMatrix(i);
-                
+
                 modelMatrix = modelMatrix * Matrix4X4.CreateTranslation(0f, offset, 0f);
-                
+
                 SetModelMatrix(modelMatrix);
                 DrawModelObject(barrel);
             }
