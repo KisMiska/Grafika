@@ -209,6 +209,9 @@ namespace GrafikaSzeminarium
             //ImGuiNET.ImGui.ShowDemoWindow();
             ImGuiNET.ImGui.Begin("Lighting", ImGuiNET.ImGuiWindowFlags.AlwaysAutoResize | ImGuiNET.ImGuiWindowFlags.NoCollapse);
             ImGuiNET.ImGui.SliderFloat("Shininess", ref shininess, 5, 100);
+            if (ImGuiNET.ImGui.RadioButton("Phong Shading", usePhongShading)) usePhongShading = true;
+            ImGuiNET.ImGui.SameLine();
+            if (ImGuiNET.ImGui.RadioButton("Gouraud Shading", !usePhongShading)) usePhongShading = false;
             ImGuiNET.ImGui.End();
 
             imGuiController.Render();
