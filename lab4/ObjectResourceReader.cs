@@ -17,6 +17,10 @@ namespace Szeminarium
         {
             List<float[]> objVertices = new List<float[]>();
             List<int[]> objFaces = new List<int[]>();
+            List<float[]> objNormals = new List<float[]>();
+            List<int[]> objFaceNormals = new List<int[]>();
+
+            bool hasNormals = false;
 
             string fullResourceName = "Lab4.Resources." + resourceName;
             using (var objStream = typeof(ObjectResourceReader).Assembly.GetManifestResourceStream(fullResourceName))
@@ -29,8 +33,15 @@ namespace Szeminarium
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
 
-                    var lineClassifier = line.Substring(0, line.IndexOf(' '));
-                    var lineData = line.Substring(line.IndexOf(" ")).Trim().Split(' ');
+                    if (line.StartsWith("#"))
+                        continue;
+
+                    var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length == 0)
+                        continue;
+
+                    var lineClassifier = parts[0];
+                    var lineData = parts.Skip(1).ToArray();
 
                     switch (lineClassifier)
                     {
@@ -40,14 +51,40 @@ namespace Szeminarium
                                 vertex[i] = float.Parse(lineData[i], CultureInfo.InvariantCulture);
                             objVertices.Add(vertex);
                             break;
+                        case "vn":
+                            hasNormals = true;
+                            float[] normal = new float[3];
+                            for (int i = 0; i < normal.Length; ++i)
+                                normal[i] = float.Parse(lineData[i], CultureInfo.InvariantCulture);
+                            objNormals.Add(normal);
+                            break;
                         case "f":
                             int[] face = new int[3];
-                            for (int i = 0; i < face.Length; ++i)
-                                face[i] = int.Parse(lineData[i], CultureInfo.InvariantCulture);
+                            int[] faceNormals = new int[3];
+                            for (int i = 0; i < 3; ++i)
+                            {
+                                string[] indices = lineData[i].Split('/');
+                                
+                                face[i] = int.Parse(indices[0], CultureInfo.InvariantCulture);
+                                
+                                if (indices.Length >= 3 && !string.IsNullOrEmpty(indices[2]))
+                                {
+                                    faceNormals[i] = int.Parse(indices[2], CultureInfo.InvariantCulture);
+                                }
+                                else if (indices.Length == 2 && string.IsNullOrEmpty(indices[0]) && !string.IsNullOrEmpty(indices[1]))
+                                {
+                                    faceNormals[i] = int.Parse(indices[1], CultureInfo.InvariantCulture);
+                                }
+                                else
+                                {
+                                    faceNormals[i] = -1;
+                                }
+                            }
                             objFaces.Add(face);
+                            objFaceNormals.Add(faceNormals);
                             break;
                         default:
-                            throw new Exception("Unhandled obj structure.");
+                            break;
                     }
                 }
             }
@@ -62,18 +99,48 @@ namespace Szeminarium
                     ));
             }
 
-            foreach (var objFace in objFaces)
+            if (hasNormals)
             {
-                var a = vertexTransformations[objFace[0] - 1];
-                var b = vertexTransformations[objFace[1] - 1];
-                var c = vertexTransformations[objFace[2] - 1];
+                for (int faceIndex = 0; faceIndex < objFaces.Count; faceIndex++)
+                {
+                    var face = objFaces[faceIndex];
+                    var normalIndices = objFaceNormals[faceIndex];
 
-                var normal = Vector3D.Normalize(Vector3D.Cross(b.Coordinates - a.Coordinates, c.Coordinates - a.Coordinates));
-
-                a.UpdateNormalWithContributionFromAFace(normal);
-                b.UpdateNormalWithContributionFromAFace(normal);
-                c.UpdateNormalWithContributionFromAFace(normal);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (normalIndices[i] > 0)
+                        {
+                            var vertexIndex = face[i] - 1;
+                            var normalIndex = normalIndices[i] - 1;
+                            
+                            if (normalIndex < objNormals.Count)
+                            {
+                                var normal = objNormals[normalIndex];
+                                vertexTransformations[vertexIndex].UpdateNormalWithContributionFromAFace(
+                                    new Vector3D<float>(normal[0], normal[1], normal[2])
+                                );
+                            }
+                        }
+                    }
+                }
             }
+            else
+            {
+                foreach (var objFace in objFaces)
+                {
+                    var a = vertexTransformations[objFace[0] - 1];
+                    var b = vertexTransformations[objFace[1] - 1];
+                    var c = vertexTransformations[objFace[2] - 1];
+
+                    var normal = Vector3D.Normalize(Vector3D.Cross(b.Coordinates - a.Coordinates, c.Coordinates - a.Coordinates));
+
+                    a.UpdateNormalWithContributionFromAFace(normal);
+                    b.UpdateNormalWithContributionFromAFace(normal);
+                    c.UpdateNormalWithContributionFromAFace(normal);
+                }
+            }
+
+            
 
             List<float> glVertices = new List<float>();
             List<float> glColors = new List<float>();

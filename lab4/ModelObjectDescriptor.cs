@@ -129,6 +129,16 @@ namespace GrafikaSzeminarium
             return CreateModelObjectFromArrays(GL, vertexArray, colorArray, indexArray);
         }
 
+        public unsafe static ModelObjectDescriptor CreateCustom(GL GL, String modelName)
+        {
+            float[] vertexArray;
+            float[] colorArray;
+            uint[] indexArray;
+
+            ObjectResourceReader.CreateObjectFromResource(GL, modelName, out vertexArray, out colorArray, out indexArray);
+
+            return CreateModelObjectFromArrays(GL, vertexArray, colorArray, indexArray);
+        }
 
         private static unsafe ModelObjectDescriptor CreateModelObjectFromArrays(GL Gl, float[] vertexArray, float[] colorArray, uint[] indexArray)
         {

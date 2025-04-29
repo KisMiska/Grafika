@@ -22,6 +22,8 @@ namespace GrafikaSzeminarium
 
         private static ModelObjectDescriptor teapot;
 
+        private static ModelObjectDescriptor custom;
+
         private static CameraDescriptor camera = new CameraDescriptor();
 
         private static CubeArrangementModel cubeArrangementModel = new CubeArrangementModel();
@@ -61,6 +63,7 @@ namespace GrafikaSzeminarium
         {
             cube.Dispose();
             teapot.Dispose();
+            custom.Dispose();
             Gl.DeleteProgram(program);
         }
 
@@ -87,6 +90,7 @@ namespace GrafikaSzeminarium
 
             cube = ModelObjectDescriptor.CreateCube(Gl);
             teapot = ModelObjectDescriptor.CreateTeapot(Gl);
+            custom = ModelObjectDescriptor.CreateCustom(Gl, "cube.obj");
 
             Gl.ClearColor(System.Drawing.Color.White);
             
@@ -203,7 +207,7 @@ namespace GrafikaSzeminarium
 
             var modelMatrixCenterCube = Matrix4X4.CreateScale((float)cubeArrangementModel.CenterCubeScale);
             SetModelMatrix(modelMatrixCenterCube);
-            DrawModelObject(teapot);
+            DrawModelObject(custom);
 
             Matrix4X4<float> diamondScale = Matrix4X4.CreateScale(0.25f);
             Matrix4X4<float> rotx = Matrix4X4.CreateRotationX((float)Math.PI / 4f);
