@@ -77,6 +77,7 @@ namespace GrafikaSzeminarium
             foreach (var keyboard in inputContext.Keyboards)
             {
                 keyboard.KeyDown += Keyboard_KeyDown;
+                keyboard.KeyUp += Keyboard_KeyUp;
             }
 
             // Handle resizes
@@ -95,7 +96,7 @@ namespace GrafikaSzeminarium
             skybox = ModelObjectDescriptor.CreateSkyBox(Gl);
 
             Gl.ClearColor(System.Drawing.Color.White);
-            
+
             //Gl.Enable(EnableCap.CullFace);
             //Gl.CullFace(TriangleFace.Back);
 
@@ -175,19 +176,41 @@ namespace GrafikaSzeminarium
                     camera.DecreaseZXAngle();
                     break;
                 case Key.W:
-                    cubeArrangementModel.MoveForward(lastDeltaTime);
+                    cubeArrangementModel.IsMovingForward = true;
                     break;
                 case Key.S:
-                    cubeArrangementModel.MoveBackward(lastDeltaTime);
-                    break;
-                case Key.A:
-                    cubeArrangementModel.MoveRight(lastDeltaTime);
-                    break;
-                case Key.D:
-                    cubeArrangementModel.MoveLeft(lastDeltaTime);
+                    cubeArrangementModel.IsMovingBackward = true;
                     break;
                 
-                  
+                case Key.A:
+                    cubeArrangementModel.IsTurningLeft = true;
+                    break;
+                case Key.D:
+                    cubeArrangementModel.IsTurningRight = true;
+                    break;
+                case Key.R:
+                    cubeArrangementModel.Reset();
+                    break;
+
+            }
+        }
+
+        private static void Keyboard_KeyUp(IKeyboard keyboard, Key key, int arg3)
+        {
+            switch (key)
+            {
+                case Key.W:
+                    cubeArrangementModel.IsMovingForward = false;
+                    break;
+                case Key.S:
+                    cubeArrangementModel.IsMovingBackward = false;
+                    break;
+                case Key.A:
+                    cubeArrangementModel.IsTurningLeft = false;
+                    break;
+                case Key.D:
+                    cubeArrangementModel.IsTurningRight = false;
+                    break;
             }
         }
 
@@ -196,6 +219,7 @@ namespace GrafikaSzeminarium
             // NO OpenGL
             // make it threadsafe
             lastDeltaTime = (float)deltaTime;
+            cubeArrangementModel.UpdateMovement((float)deltaTime);
 
             cubeArrangementModel.AdvanceTime(deltaTime);
 
@@ -222,7 +246,7 @@ namespace GrafikaSzeminarium
 
             DrawSkyBox();
 
-            var modelMatrixCenterCube = Matrix4X4.CreateScale((float)cubeArrangementModel.CenterCubeScale) *  Matrix4X4.CreateTranslation(cubeArrangementModel.Position);
+            var modelMatrixCenterCube = cubeArrangementModel.GetTransformMatrix();
             SetModelMatrix(modelMatrixCenterCube);
             DrawModelObject(custom);
 
