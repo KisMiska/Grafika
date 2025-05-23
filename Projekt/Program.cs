@@ -42,6 +42,7 @@ namespace GrafikaSzeminarium
         private const string TextureVariableName = "uTexture";
 
         private static float shininess = 50;
+        private static float lastDeltaTime = 0f;
 
         private static uint program;
 
@@ -90,7 +91,7 @@ namespace GrafikaSzeminarium
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
             cube = ModelObjectDescriptor.CreateCube(Gl);
-            custom = ModelObjectDescriptor.CreateCustom(Gl, "boost.obj");
+            custom = ModelObjectDescriptor.CreateCustom(Gl, "trojan_412.obj");
             skybox = ModelObjectDescriptor.CreateSkyBox(Gl);
 
             Gl.ClearColor(System.Drawing.Color.White);
@@ -150,6 +151,7 @@ namespace GrafikaSzeminarium
             }
         }
 
+
         private static void Keyboard_KeyDown(IKeyboard keyboard, Key key, int arg3)
         {
             switch (key)
@@ -169,9 +171,23 @@ namespace GrafikaSzeminarium
                 case Key.U:
                     camera.IncreaseZXAngle();
                     break;
-                case Key.D:
+                case Key.X:
                     camera.DecreaseZXAngle();
                     break;
+                case Key.W:
+                    cubeArrangementModel.MoveForward(lastDeltaTime);
+                    break;
+                case Key.S:
+                    cubeArrangementModel.MoveBackward(lastDeltaTime);
+                    break;
+                case Key.A:
+                    cubeArrangementModel.MoveRight(lastDeltaTime);
+                    break;
+                case Key.D:
+                    cubeArrangementModel.MoveLeft(lastDeltaTime);
+                    break;
+                
+                  
             }
         }
 
@@ -179,6 +195,8 @@ namespace GrafikaSzeminarium
         {
             // NO OpenGL
             // make it threadsafe
+            lastDeltaTime = (float)deltaTime;
+
             cubeArrangementModel.AdvanceTime(deltaTime);
 
             imGuiController.Update((float)deltaTime);
@@ -204,7 +222,7 @@ namespace GrafikaSzeminarium
 
             DrawSkyBox();
 
-            var modelMatrixCenterCube = Matrix4X4.CreateScale((float)cubeArrangementModel.CenterCubeScale);
+            var modelMatrixCenterCube = Matrix4X4.CreateScale((float)cubeArrangementModel.CenterCubeScale) *  Matrix4X4.CreateTranslation(cubeArrangementModel.Position);
             SetModelMatrix(modelMatrixCenterCube);
             DrawModelObject(custom);
 

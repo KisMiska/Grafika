@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Silk.NET.Maths;
 
 namespace Szeminarium
 {
@@ -23,9 +24,9 @@ namespace Szeminarium
         /// </summary>
         public double CenterCubeScale { get; private set; } = 1;
 
-        /// <summary>
-        /// The angle with which the diamond cube is rotated around the diagonal from bottom right front to top left back.
-        /// </summary>
+        public Vector3D<float> Position { get; private set; } = Vector3D<float>.Zero;
+
+        private const float MovementSpeed = 2.0f;
 
         internal void AdvanceTime(double deltaTime)
         {
@@ -38,8 +39,27 @@ namespace Szeminarium
 
             // lets produce an oscillating scale in time
             CenterCubeScale = 1 + 0.2 * Math.Sin(1.5 * Time);
-
-            // the rotation angle is time x angular velocity;
         }
+
+        public void MoveForward(float deltaTime)
+        {
+            Position = new Vector3D<float>(Position.X, Position.Y, Position.Z + MovementSpeed * deltaTime);
+        }
+
+        public void MoveBackward(float deltaTime)
+        {
+            Position = new Vector3D<float>(Position.X, Position.Y, Position.Z - MovementSpeed * deltaTime);
+        }
+
+        public void MoveLeft(float deltaTime)
+        {
+            Position = new Vector3D<float>(Position.X - MovementSpeed * deltaTime, Position.Y, Position.Z);
+        }
+
+        public void MoveRight(float deltaTime)
+        {
+            Position = new Vector3D<float>(Position.X + MovementSpeed * deltaTime, Position.Y, Position.Z);
+        }
+
     }
 }
