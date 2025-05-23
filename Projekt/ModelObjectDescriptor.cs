@@ -214,7 +214,7 @@ namespace GrafikaSzeminarium
                 20, 22, 23
             };
 
-            var skyboxImage = ReadTextureImage("skybox4.png");
+            var skyboxImage = ReadTextureImage("skybox2.png");
 
             return CreateModelObjectFromArrays(Gl, vertexArray, colorArray, indexArray, skyboxImage);
         }

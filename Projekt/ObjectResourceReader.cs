@@ -59,29 +59,55 @@ namespace Szeminarium
                             objNormals.Add(normal);
                             break;
                         case "f":
-                            int[] face = new int[3];
-                            int[] faceNormals = new int[3];
-                            for (int i = 0; i < 3; ++i)
+                            List<int> face = new List<int>();
+                            List<int> faceNormals = new List<int>();
+                            for (int i = 0; i < lineData.Length; ++i)
                             {
                                 string[] indices = lineData[i].Split('/');
-                                
-                                face[i] = int.Parse(indices[0], CultureInfo.InvariantCulture);
-                                
-                                if (indices.Length >= 3 && !string.IsNullOrEmpty(indices[2]))
+
+                                if (indices.Length > 0 && !string.IsNullOrEmpty(indices[0]))
                                 {
-                                    faceNormals[i] = int.Parse(indices[2], CultureInfo.InvariantCulture);
+                                    int vertexIndex = int.Parse(indices[0], CultureInfo.InvariantCulture);
+                                    face.Add(vertexIndex);
+
+                                    int normalIndex = -1;
+                                    if (indices.Length >= 3 && !string.IsNullOrEmpty(indices[2]))
+                                    {
+                                        normalIndex = int.Parse(indices[2], CultureInfo.InvariantCulture);
+                                    }
+                                    else if (indices.Length == 2 && !string.IsNullOrEmpty(indices[1]))
+                                    {
+    
+                                        normalIndex = int.Parse(indices[1], CultureInfo.InvariantCulture);
+                                    }
+                                    faceNormals.Add(normalIndex);
+
                                 }
-                                else if (indices.Length == 2 && string.IsNullOrEmpty(indices[0]) && !string.IsNullOrEmpty(indices[1]))
-                                {
-                                    faceNormals[i] = int.Parse(indices[1], CultureInfo.InvariantCulture);
-                                }
-                                else
-                                {
-                                    faceNormals[i] = -1;
-                                }
+                               
                             }
-                            objFaces.Add(face);
-                            objFaceNormals.Add(faceNormals);
+
+                            for (int i = 1; i < face.Count - 1; ++i)
+                                {
+                                    int[] triangleFace = new int[3] 
+                                    { 
+                                        face[0], 
+                                        face[i], 
+                                        face[i + 1] 
+                                    };
+                                    
+                                    int[] triangleNormals = new int[3] 
+                                    { 
+                                        faceNormals[0], 
+                                        faceNormals[i], 
+                                        faceNormals[i + 1] 
+                                    };
+                                    
+                                    objFaces.Add(triangleFace);
+                                    objFaceNormals.Add(triangleNormals);
+                                }
+
+                            objFaces.Add(face.ToArray());
+                            objFaceNormals.Add(faceNormals.ToArray());
                             break;
                         default:
                             break;

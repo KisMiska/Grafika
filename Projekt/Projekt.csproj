@@ -32,6 +32,8 @@
     <EmbeddedResource Include="Resources\skybox2.png" />
     <EmbeddedResource Include="Resources\skybox3.png" />
     <EmbeddedResource Include="Resources\skybox4.png" />
+    <EmbeddedResource Include="Resources\boost.obj"/>
+    <EmbeddedResource Include="Resources\trojan_412.obj" />
   </ItemGroup>
 
 </Project>

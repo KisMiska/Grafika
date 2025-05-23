@@ -90,7 +90,7 @@ namespace GrafikaSzeminarium
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
             cube = ModelObjectDescriptor.CreateCube(Gl);
-            custom = ModelObjectDescriptor.CreateCustom(Gl, "cube.obj");
+            custom = ModelObjectDescriptor.CreateCustom(Gl, "boost.obj");
             skybox = ModelObjectDescriptor.CreateSkyBox(Gl);
 
             Gl.ClearColor(System.Drawing.Color.White);
