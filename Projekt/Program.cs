@@ -1,4 +1,5 @@
-﻿using Silk.NET.Input;
+﻿using ImGuiNET;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
@@ -66,6 +67,7 @@ namespace GrafikaSzeminarium
         {
             cube.Dispose();
             custom.Dispose();
+            skybox.Dispose();
             Gl.DeleteProgram(program);
         }
 
@@ -87,13 +89,14 @@ namespace GrafikaSzeminarium
                 Gl.Viewport(s);
             };
 
-
-
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
             cube = ModelObjectDescriptor.CreateCube(Gl);
             custom = ModelObjectDescriptor.CreateCustom(Gl, "trojan_412.obj");
             skybox = ModelObjectDescriptor.CreateSkyBox(Gl);
+
+            camera.SetVehicleReference(cubeArrangementModel);
+            camera.SetCameraMode(CameraDescriptor.CameraMode.ThirdPerson);
 
             Gl.ClearColor(System.Drawing.Color.White);
 
@@ -181,7 +184,7 @@ namespace GrafikaSzeminarium
                 case Key.S:
                     cubeArrangementModel.IsMovingBackward = true;
                     break;
-                
+
                 case Key.A:
                     cubeArrangementModel.IsTurningLeft = true;
                     break;
@@ -190,6 +193,15 @@ namespace GrafikaSzeminarium
                     break;
                 case Key.R:
                     cubeArrangementModel.Reset();
+                    break;
+                case Key.F:
+                    if (camera.Mode == CameraDescriptor.CameraMode.ThirdPerson)
+                        camera.SetCameraMode(CameraDescriptor.CameraMode.FirstPerson);
+                    else if (camera.Mode == CameraDescriptor.CameraMode.FirstPerson)
+                        camera.SetCameraMode(CameraDescriptor.CameraMode.ThirdPerson);
+                    break;
+                case Key.Escape:
+                    camera.SetCameraMode(CameraDescriptor.CameraMode.Free);
                     break;
 
             }
@@ -249,6 +261,22 @@ namespace GrafikaSzeminarium
             var modelMatrixCenterCube = cubeArrangementModel.GetTransformMatrix();
             SetModelMatrix(modelMatrixCenterCube);
             DrawModelObject(custom);
+
+            ImGui.Begin("Camera Controls");
+            
+            ImGui.Text($"Current Camera Mode: {camera.Mode}");
+            ImGui.Separator();
+            
+            if (ImGui.Button("Third Person"))
+            {
+                camera.SetCameraMode(CameraDescriptor.CameraMode.ThirdPerson);
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("First Person"))
+            {
+                camera.SetCameraMode(CameraDescriptor.CameraMode.FirstPerson);
+            }
+            ImGui.End();
 
             imGuiController.Render();
         }
