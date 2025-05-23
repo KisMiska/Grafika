@@ -11,6 +11,27 @@
   <ItemGroup>
     <PackageReference Include="Silk.NET" Version="2.22.0" />
     <PackageReference Include="Silk.NET.OpenGL.Extensions.ImGui" Version="2.22.0" />
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\teapot.obj" />
+    <None Remove="Shaders\FragmentShader.frag" />
+    <None Remove="Shaders\VertexShader.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\teapot.obj" />
+    <EmbeddedResource Include="Shaders\FragmentShader.frag" />
+    <EmbeddedResource Include="Shaders\VertexShader.vert" />
+    <EmbeddedResource Include="Resources\cube.obj" />
+    <EmbeddedResource Include="Resources\alfa147.obj" />
+    <EmbeddedResource Include="Resources\minicooper.obj" />
+    <EmbeddedResource Include="Resources\skybox.png" />
+    <EmbeddedResource Include="Resources\skybox1.png" />
+    <EmbeddedResource Include="Resources\skybox2.png" />
+    <EmbeddedResource Include="Resources\skybox3.png" />
+    <EmbeddedResource Include="Resources\skybox4.png" />
   </ItemGroup>
 
 </Project>
