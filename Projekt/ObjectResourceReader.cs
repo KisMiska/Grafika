@@ -88,19 +88,19 @@ namespace Szeminarium
 
                             for (int i = 1; i < face.Count - 1; ++i)
                                 {
-                                    int[] triangleFace = new int[3] 
-                                    { 
+                                    int[] triangleFace =
+                                    [
                                         face[0], 
                                         face[i], 
                                         face[i + 1] 
-                                    };
+                                    ];
                                     
-                                    int[] triangleNormals = new int[3] 
-                                    { 
+                                    int[] triangleNormals =
+                                    [
                                         faceNormals[0], 
                                         faceNormals[i], 
                                         faceNormals[i + 1] 
-                                    };
+                                    ];
                                     
                                     objFaces.Add(triangleFace);
                                     objFaceNormals.Add(triangleNormals);
