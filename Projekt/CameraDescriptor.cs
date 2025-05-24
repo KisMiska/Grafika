@@ -143,6 +143,7 @@ namespace Szeminarium
 
             Vector3D<float> vehiclePos = vehicleModel.Position;
             float vehicleRotation = vehicleModel.Rotation;
+            float scale = vehicleModel.IsBoosted ? 1.5f : 1.0f;
 
             Vector3D<float> forward = new Vector3D<float>(
                 (float)Math.Sin(vehicleRotation),
@@ -150,9 +151,7 @@ namespace Szeminarium
                 (float)Math.Cos(vehicleRotation)
             );
 
-            return vehiclePos +
-                   forward * FirstPersonForwardOffset +
-                   Vector3D<float>.UnitY * FirstPersonHeight;
+            return vehiclePos + forward * (FirstPersonForwardOffset * scale) + Vector3D<float>.UnitY * (FirstPersonHeight * scale);
         }
 
         private Vector3D<float> GetFirstPersonTarget()

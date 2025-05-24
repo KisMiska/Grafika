@@ -35,6 +35,7 @@ namespace GrafikaSzeminarium
         private static double[] boostTimeOffsets = new double[8];
         private static Random random = new Random();
         private static double gameTime = 0.0;
+        private static bool[] boostCollected = new bool[8];
 
         private const string ModelMatrixVariableName = "uModel";
         private const string NormalMatrixVariableName = "uNormal";
@@ -86,9 +87,23 @@ namespace GrafikaSzeminarium
                 boostPositions[i] = new Vector3D<float>(
                     (float)(random.NextDouble() * 50 - 10), 1.0f, (float)(random.NextDouble() * 50 - 10)
                 );
-                
+
                 //not in sync
                 boostTimeOffsets[i] = random.NextDouble() * Math.PI * 2;
+                boostCollected[i] = false;
+            }
+        }
+
+        private static void CheckBoostCollisions()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                if (!boostCollected[i] && cubeArrangementModel.CanCollectBoost(boostPositions[i]))
+                {
+                    boostCollected[i] = true;
+                    cubeArrangementModel.CollectBoost();
+                    
+                }
             }
         }
 
@@ -217,6 +232,7 @@ namespace GrafikaSzeminarium
                     break;
                 case Key.R:
                     cubeArrangementModel.Reset();
+                    InitializeBoosts();
                     break;
                 case Key.F:
                     if (camera.Mode == CameraDescriptor.CameraMode.ThirdPerson)
@@ -260,6 +276,8 @@ namespace GrafikaSzeminarium
             cubeArrangementModel.UpdateMovement((float)deltaTime);
             cubeArrangementModel.AdvanceTime(deltaTime);
 
+            CheckBoostCollisions();
+
             imGuiController.Update((float)deltaTime);
         }
 
@@ -286,6 +304,8 @@ namespace GrafikaSzeminarium
             var modelMatrixCenterCube = cubeArrangementModel.GetTransformMatrix();
             SetModelMatrix(modelMatrixCenterCube);
             DrawModelObject(custom);
+
+
 
             DrawBoosts();
 
@@ -337,13 +357,18 @@ namespace GrafikaSzeminarium
         {
             for (int i = 0; i < 8; i++)
             {
-                double oscillationPhase = gameTime * 2.0 + boostTimeOffsets[i];
-                float scale = 0.3f + 0.05f * (float)Math.Sin(oscillationPhase);
-                
-                var boostMatrix = Matrix4X4.CreateScale(scale) * Matrix4X4.CreateTranslation(boostPositions[i]);
-                
-                SetModelMatrix(boostMatrix);
-                DrawModelObject(boost);
+                if (!boostCollected[i])
+                {
+                    double oscillationPhase = gameTime * 2.0 + boostTimeOffsets[i];
+                    float scale = 0.3f + 0.05f * (float)Math.Sin(oscillationPhase);
+                    
+                    float rotation = (float)(gameTime + boostTimeOffsets[i]);
+                    
+                    var boostMatrix = Matrix4X4.CreateScale(scale) * Matrix4X4.CreateRotationY(rotation) * Matrix4X4.CreateTranslation(boostPositions[i]);
+                    
+                    SetModelMatrix(boostMatrix);
+                    DrawModelObject(boost);
+                }
             }
         }
 

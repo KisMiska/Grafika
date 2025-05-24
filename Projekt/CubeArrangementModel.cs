@@ -12,7 +12,7 @@ namespace Szeminarium
         /// <summary>
         /// Gets or sets wheather the animation should run or it should be frozen.
         /// </summary>
-        public bool AnimationEnabled { get; set; } = false;
+        public bool AnimationEnabled { get; set; } = true;
 
         /// <summary>
         /// The time of the simulation. It helps to calculate time dependent values.
@@ -28,12 +28,18 @@ namespace Szeminarium
         public float Rotation { get; private set; } = 0f;
 
         private const float MovementSpeed = 3.0f;
-        private const float RotationSpeed = 2.0f;
+        private const float RotationSpeed = 1.5f;
 
         public bool IsMovingForward { get; set; } = false;
         public bool IsMovingBackward { get; set; } = false;
         public bool IsTurningLeft { get; set; } = false;
         public bool IsTurningRight { get; set; } = false;
+
+        private double boostEndTime = 0;
+        private const double BoostDuration = 10.0;
+        private const float BoostSizeMultiplier = 1.5f;
+        private const float CollectionRadius = 2.0f;
+        public bool IsBoosted => Time <= boostEndTime;
 
         internal void AdvanceTime(double deltaTime)
         {
@@ -44,8 +50,15 @@ namespace Szeminarium
             // set a simulation time
             Time += deltaTime;
 
-            // lets produce an oscillating scale in time
-            CenterCubeScale = 1 + 0.2 * Math.Sin(1.5 * Time);
+
+            if (IsBoosted)
+            {
+                CenterCubeScale = BoostSizeMultiplier;
+            }
+            else
+            {
+                CenterCubeScale = 1.0;
+            }
         }
 
         public void UpdateMovement(float deltaTime)
@@ -63,14 +76,14 @@ namespace Szeminarium
             while (Rotation < 0) Rotation += (float)(Math.PI * 2);
 
             Vector3D<float> forward = new Vector3D<float>(
-                (float)Math.Sin(Rotation), 
-                0, 
+                (float)Math.Sin(Rotation),
+                0,
                 (float)Math.Cos(Rotation)
             );
-            
+
             Vector3D<float> right = new Vector3D<float>(
-                (float)Math.Cos(Rotation), 
-                0, 
+                (float)Math.Cos(Rotation),
+                0,
                 -(float)Math.Sin(Rotation)
             );
 
@@ -101,7 +114,27 @@ namespace Szeminarium
             IsMovingBackward = false;
             IsTurningLeft = false;
             IsTurningRight = false;
+            boostEndTime = 0;
         }
+
+        public void CollectBoost()
+        {
+            boostEndTime = Time + BoostDuration;
+        }
+
+        public bool CanCollectBoost(Vector3D<float> boostPosition)
+        {
+            float distance = Vector3D.Distance(Position, boostPosition);
+            return distance <= CollectionRadius;
+        }
+
+        public double GetRemainingBoostTime()
+        {
+            if (!IsBoosted) return 0;
+            return boostEndTime - Time;
+        }
+        
+
 
     }
 }
