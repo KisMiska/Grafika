@@ -25,11 +25,16 @@ namespace GrafikaSzeminarium
 
         private static ModelObjectDescriptor skybox;
 
-        private static ModelObjectDescriptor[] boosts;
+        private static ModelObjectDescriptor boost;
 
         private static CameraDescriptor camera = new CameraDescriptor();
 
         private static CubeArrangementModel cubeArrangementModel = new CubeArrangementModel();
+
+        private static Vector3D<float>[] boostPositions = new Vector3D<float>[8];
+        private static double[] boostTimeOffsets = new double[8];
+        private static Random random = new Random();
+        private static double gameTime = 0.0;
 
         private const string ModelMatrixVariableName = "uModel";
         private const string NormalMatrixVariableName = "uNormal";
@@ -70,8 +75,21 @@ namespace GrafikaSzeminarium
             cube.Dispose();
             custom.Dispose();
             skybox.Dispose();
-            boosts.Dispose();
+            boost.Dispose();
             Gl.DeleteProgram(program);
+        }
+
+        private static void InitializeBoosts()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                boostPositions[i] = new Vector3D<float>(
+                    (float)(random.NextDouble() * 50 - 10), 1.0f, (float)(random.NextDouble() * 50 - 10)
+                );
+                
+                //not in sync
+                boostTimeOffsets[i] = random.NextDouble() * Math.PI * 2;
+            }
         }
 
         private static void GraphicWindow_Load()
@@ -97,9 +115,12 @@ namespace GrafikaSzeminarium
             cube = ModelObjectDescriptor.CreateCube(Gl);
             custom = ModelObjectDescriptor.CreateCustom(Gl, "trojan_412.obj");
             skybox = ModelObjectDescriptor.CreateSkyBox(Gl);
+            boost = ModelObjectDescriptor.CreateCustom(Gl, "boost.obj");
 
             camera.SetVehicleReference(cubeArrangementModel);
             camera.SetCameraMode(CameraDescriptor.CameraMode.ThirdPerson);
+
+            InitializeBoosts();
 
             Gl.ClearColor(System.Drawing.Color.White);
 
@@ -234,8 +255,9 @@ namespace GrafikaSzeminarium
             // NO OpenGL
             // make it threadsafe
             lastDeltaTime = (float)deltaTime;
-            cubeArrangementModel.UpdateMovement((float)deltaTime);
+            gameTime += deltaTime;
 
+            cubeArrangementModel.UpdateMovement((float)deltaTime);
             cubeArrangementModel.AdvanceTime(deltaTime);
 
             imGuiController.Update((float)deltaTime);
@@ -265,11 +287,13 @@ namespace GrafikaSzeminarium
             SetModelMatrix(modelMatrixCenterCube);
             DrawModelObject(custom);
 
+            DrawBoosts();
+
             ImGui.Begin("Camera Controls");
-            
+
             ImGui.Text($"Current Camera Mode: {camera.Mode}");
             ImGui.Separator();
-            
+
             if (ImGui.Button("Third Person"))
             {
                 camera.SetCameraMode(CameraDescriptor.CameraMode.ThirdPerson);
@@ -307,6 +331,20 @@ namespace GrafikaSzeminarium
             CheckError();
             Gl.BindTexture(TextureTarget.Texture2D, 0);
             CheckError();
+        }
+
+        private static void DrawBoosts()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                double oscillationPhase = gameTime * 2.0 + boostTimeOffsets[i];
+                float scale = 0.3f + 0.05f * (float)Math.Sin(oscillationPhase);
+                
+                var boostMatrix = Matrix4X4.CreateScale(scale) * Matrix4X4.CreateTranslation(boostPositions[i]);
+                
+                SetModelMatrix(boostMatrix);
+                DrawModelObject(boost);
+            }
         }
 
         private static unsafe void SetModelMatrix(Matrix4X4<float> modelMatrix)
