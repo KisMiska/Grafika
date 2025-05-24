@@ -35,6 +35,8 @@
     <EmbeddedResource Include="Resources\boost.obj"/>
     <EmbeddedResource Include="Resources\trojan_412.obj" />
     <EmbeddedResource Include="Resources\boost.mtl"/>
+    <EmbeddedResource Include="Resources\hydra_flak.obj"/>
+    <EmbeddedResource Include="Resources\hammerhead.obj"/>
   </ItemGroup>
 
 </Project>

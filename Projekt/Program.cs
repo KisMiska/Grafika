@@ -26,6 +26,9 @@ namespace GrafikaSzeminarium
         private static ModelObjectDescriptor skybox;
 
         private static ModelObjectDescriptor boost;
+        private static ModelObjectDescriptor bot1;
+        private static ModelObjectDescriptor bot2;
+        private static BotsDescriptor botsDescriptor = new BotsDescriptor();
 
         private static CameraDescriptor camera = new CameraDescriptor();
 
@@ -77,6 +80,8 @@ namespace GrafikaSzeminarium
             custom.Dispose();
             skybox.Dispose();
             boost.Dispose();
+            bot1.Dispose();
+            bot2.Dispose();
             Gl.DeleteProgram(program);
         }
 
@@ -102,7 +107,7 @@ namespace GrafikaSzeminarium
                 {
                     boostCollected[i] = true;
                     cubeArrangementModel.CollectBoost();
-                    
+
                 }
             }
         }
@@ -131,6 +136,8 @@ namespace GrafikaSzeminarium
             custom = ModelObjectDescriptor.CreateCustom(Gl, "trojan_412.obj");
             skybox = ModelObjectDescriptor.CreateSkyBox(Gl);
             boost = ModelObjectDescriptor.CreateCustom(Gl, "boost.obj");
+            bot1 = ModelObjectDescriptor.CreateCustom(Gl, "hydra_flak.obj");
+            bot2 = ModelObjectDescriptor.CreateCustom(Gl, "hammerhead.obj");
 
             camera.SetVehicleReference(cubeArrangementModel);
             camera.SetCameraMode(CameraDescriptor.CameraMode.ThirdPerson);
@@ -233,6 +240,7 @@ namespace GrafikaSzeminarium
                 case Key.R:
                     cubeArrangementModel.Reset();
                     InitializeBoosts();
+                    ResetBots();
                     break;
                 case Key.F:
                     if (camera.Mode == CameraDescriptor.CameraMode.ThirdPerson)
@@ -278,6 +286,8 @@ namespace GrafikaSzeminarium
 
             CheckBoostCollisions();
 
+            botsDescriptor.Update((float)deltaTime);
+
             imGuiController.Update((float)deltaTime);
         }
 
@@ -305,9 +315,16 @@ namespace GrafikaSzeminarium
             SetModelMatrix(modelMatrixCenterCube);
             DrawModelObject(custom);
 
-
-
             DrawBoosts();
+
+            var bots = botsDescriptor.GetBots();
+            foreach (var bot in bots)
+            {
+                Matrix4X4<float> botModelMatrix = bot.GetTransformMatrix();
+                SetModelMatrix(botModelMatrix);
+                DrawModelObject(bot.IsHammerhead ? bot2 : bot1);
+
+            }
 
             ImGui.Begin("Camera Controls");
 
@@ -361,14 +378,22 @@ namespace GrafikaSzeminarium
                 {
                     double oscillationPhase = gameTime * 2.0 + boostTimeOffsets[i];
                     float scale = 0.3f + 0.05f * (float)Math.Sin(oscillationPhase);
-                    
+
                     float rotation = (float)(gameTime + boostTimeOffsets[i]);
-                    
+
                     var boostMatrix = Matrix4X4.CreateScale(scale) * Matrix4X4.CreateRotationY(rotation) * Matrix4X4.CreateTranslation(boostPositions[i]);
-                    
+
                     SetModelMatrix(boostMatrix);
                     DrawModelObject(boost);
                 }
+            }
+        }
+
+        private static void ResetBots()
+        {
+            foreach (var obj in botsDescriptor.GetBots())
+            {
+                obj.Reset();
             }
         }
 
