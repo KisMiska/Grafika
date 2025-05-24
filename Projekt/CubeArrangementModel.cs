@@ -50,7 +50,6 @@ namespace Szeminarium
 
         public void UpdateMovement(float deltaTime)
         {
-            // Handle rotation first
             if (IsTurningLeft)
             {
                 Rotation += RotationSpeed * deltaTime;
@@ -60,11 +59,9 @@ namespace Szeminarium
                 Rotation -= RotationSpeed * deltaTime;
             }
 
-            // Keep rotation in 0-2π range
             while (Rotation > Math.PI * 2) Rotation -= (float)(Math.PI * 2);
             while (Rotation < 0) Rotation += (float)(Math.PI * 2);
 
-            // Calculate movement vectors based on current rotation
             Vector3D<float> forward = new Vector3D<float>(
                 (float)Math.Sin(Rotation), 
                 0, 
@@ -77,7 +74,6 @@ namespace Szeminarium
                 -(float)Math.Sin(Rotation)
             );
 
-            // Calculate movement delta
             Vector3D<float> movementDelta = Vector3D<float>.Zero;
 
             if (IsMovingForward)
@@ -89,15 +85,12 @@ namespace Szeminarium
                 movementDelta -= forward * MovementSpeed * deltaTime;
             }
 
-            // Apply movement
             Position += movementDelta;
         }
 
         public Matrix4X4<float> GetTransformMatrix()
         {
-            return Matrix4X4.CreateScale((float)CenterCubeScale) *
-                   Matrix4X4.CreateRotationY(Rotation) *
-                   Matrix4X4.CreateTranslation(Position);
+            return Matrix4X4.CreateScale((float)CenterCubeScale) * Matrix4X4.CreateRotationY(Rotation) * Matrix4X4.CreateTranslation(Position);
         }
 
         public void Reset()

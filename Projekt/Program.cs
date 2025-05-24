@@ -25,6 +25,8 @@ namespace GrafikaSzeminarium
 
         private static ModelObjectDescriptor skybox;
 
+        private static ModelObjectDescriptor[] boosts;
+
         private static CameraDescriptor camera = new CameraDescriptor();
 
         private static CubeArrangementModel cubeArrangementModel = new CubeArrangementModel();
@@ -68,6 +70,7 @@ namespace GrafikaSzeminarium
             cube.Dispose();
             custom.Dispose();
             skybox.Dispose();
+            boosts.Dispose();
             Gl.DeleteProgram(program);
         }
 
