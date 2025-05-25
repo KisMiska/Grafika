@@ -11,7 +11,7 @@ using Szeminarium;
 
 namespace GrafikaSzeminarium
 {
-    internal class ModelObjectDescriptor:IDisposable
+    internal class ModelObjectDescriptor : IDisposable
     {
         private bool disposedValue;
 
@@ -117,7 +117,7 @@ namespace GrafikaSzeminarium
                 20, 23, 22
             };
 
-            return CreateModelObjectFromArrays(Gl,vertexArray, colorArray, indexArray);
+            return CreateModelObjectFromArrays(Gl, vertexArray, colorArray, indexArray);
         }
 
         public unsafe static ModelObjectDescriptor CreateSkyBox(GL Gl)
@@ -219,6 +219,8 @@ namespace GrafikaSzeminarium
             return CreateModelObjectFromArrays(Gl, vertexArray, colorArray, indexArray, skyboxImage);
         }
 
+
+
         public unsafe static ModelObjectDescriptor CreateCustom(GL GL, String modelName)
         {
             float[] vertexArray;
@@ -230,6 +232,63 @@ namespace GrafikaSzeminarium
             return CreateModelObjectFromArrays(GL, vertexArray, colorArray, indexArray);
         }
 
+        public static ModelObjectDescriptor CreateSphere(GL Gl, int segments = 16)
+        {
+            List<float> vertices = new List<float>();
+            List<float> colors = new List<float>();
+            List<uint> indices = new List<uint>();
+
+            for (int lat = 0; lat <= segments; lat++)
+            {
+                float theta = lat * (float)Math.PI / segments;
+                float sinTheta = (float)Math.Sin(theta);
+                float cosTheta = (float)Math.Cos(theta);
+
+                for (int lon = 0; lon <= segments; lon++)
+                {
+                    float phi = lon * 2 * (float)Math.PI / segments;
+                    float sinPhi = (float)Math.Sin(phi);
+                    float cosPhi = (float)Math.Cos(phi);
+
+                    float x = cosPhi * sinTheta;
+                    float y = cosTheta;
+                    float z = sinPhi * sinTheta;
+
+                    vertices.Add(x * 0.5f);
+                    vertices.Add(y * 0.5f);
+                    vertices.Add(z * 0.5f);
+                    
+                    vertices.Add(x);
+                    vertices.Add(y);
+                    vertices.Add(z);
+
+                    colors.Add(1.0f);
+                    colors.Add(0.5f);
+                    colors.Add(0.0f);
+                    colors.Add(1.0f); 
+                }
+            }
+            for (int lat = 0; lat < segments; lat++)
+            {
+                for (int lon = 0; lon < segments; lon++)
+                {
+                    uint current = (uint)(lat * (segments + 1) + lon);
+                    uint next = current + 1;
+                    uint below = (uint)((lat + 1) * (segments + 1) + lon);
+                    uint belowNext = below + 1;
+
+                    indices.Add(current);
+                    indices.Add(below);
+                    indices.Add(next);
+
+                    indices.Add(next);
+                    indices.Add(below);
+                    indices.Add(belowNext);
+                }
+            }
+
+            return CreateModelObjectFromArrays(Gl, vertices.ToArray(), colors.ToArray(), indices.ToArray());
+        }
         private static unsafe ModelObjectDescriptor CreateModelObjectFromArrays(GL Gl, float[] vertexArray, float[] colorArray, uint[] indexArray,
             ImageResult textureImage = null)
         {

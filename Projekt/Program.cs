@@ -34,14 +34,17 @@ namespace GrafikaSzeminarium
 
         private static CubeArrangementModel cubeArrangementModel = new CubeArrangementModel();
 
-        private static Vector3D<float>[] boostPositions = new Vector3D<float>[8];
-        private static double[] boostTimeOffsets = new double[8];
+        private static Vector3D<float>[] boostPositions = new Vector3D<float>[12];
+        private static double[] boostTimeOffsets = new double[12];
         private static Random random = new Random();
         private static double gameTime = 0.0;
-        private static bool[] boostCollected = new bool[8];
+        private static bool[] boostCollected = new bool[12];
 
         private static bool gameWon = false;
         private static List<Bot> destroyedBots = new List<Bot>();
+
+        private static List<ExplosionEffect> explosionEffects = new List<ExplosionEffect>();
+        private static ModelObjectDescriptor explosionSphere;
 
         private const string ModelMatrixVariableName = "uModel";
         private const string NormalMatrixVariableName = "uNormal";
@@ -57,7 +60,6 @@ namespace GrafikaSzeminarium
         private const string TextureVariableName = "uTexture";
 
         private static float shininess = 50;
-        private static float lastDeltaTime = 0f;
 
         private static uint program;
 
@@ -90,10 +92,10 @@ namespace GrafikaSzeminarium
 
         private static void InitializeBoosts()
         {
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 12; i++)
             {
                 boostPositions[i] = new Vector3D<float>(
-                    (float)(random.NextDouble() * 50 - 10), 1.0f, (float)(random.NextDouble() * 50 - 10)
+                    (float)(random.NextDouble() * 100 - 10), 1.0f, (float)(random.NextDouble() * 100 - 10)
                 );
 
                 //not in sync
@@ -104,7 +106,7 @@ namespace GrafikaSzeminarium
 
         private static void CheckBoostCollisions()
         {
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 12; i++)
             {
                 if (!boostCollected[i] && cubeArrangementModel.CanCollectBoost(boostPositions[i]))
                 {
@@ -125,11 +127,12 @@ namespace GrafikaSzeminarium
                 if (destroyedBots.Contains(bot)) continue;
 
                 float distance = Vector3D.Distance(cubeArrangementModel.Position, bot.Position);
-                if (distance <= 2.0f)
+                if (distance <= 3.0f)
                 {
                     if (cubeArrangementModel.IsBoosted)
                     {
                         destroyedBots.Add(bot);
+                        explosionEffects.Add(new ExplosionEffect(bot.Position));
 
                         if (destroyedBots.Count == bots.Count)
                         {
@@ -170,6 +173,7 @@ namespace GrafikaSzeminarium
             boost = ModelObjectDescriptor.CreateCustom(Gl, "boost.obj");
             bot1 = ModelObjectDescriptor.CreateCustom(Gl, "hydra_flak.obj");
             bot2 = ModelObjectDescriptor.CreateCustom(Gl, "hammerhead.obj");
+            explosionSphere = ModelObjectDescriptor.CreateSphere(Gl);
 
             camera.SetVehicleReference(cubeArrangementModel);
             camera.SetCameraMode(CameraDescriptor.CameraMode.ThirdPerson);
@@ -316,7 +320,6 @@ namespace GrafikaSzeminarium
         {
             // NO OpenGL
             // make it threadsafe
-            lastDeltaTime = (float)deltaTime;
             gameTime += deltaTime;
 
             cubeArrangementModel.UpdateMovement((float)deltaTime);
@@ -324,6 +327,12 @@ namespace GrafikaSzeminarium
 
             CheckBoostCollisions();
             CheckBotCollisions();
+
+            explosionEffects.RemoveAll(e => !e.IsActive);
+            foreach (var effect in explosionEffects)
+            {
+                effect.Update((float)deltaTime);
+            }
 
             botsDescriptor.Update((float)deltaTime);
 
@@ -366,6 +375,16 @@ namespace GrafikaSzeminarium
                     DrawModelObject(bot.IsHammerhead ? bot2 : bot1);
                 }
             }
+
+            foreach (var effect in explosionEffects)
+            {
+                var explosionMatrix = Matrix4X4.CreateScale(effect.Scale) * Matrix4X4.CreateTranslation(effect.Position);
+                SetModelMatrix(explosionMatrix);
+                SetUniform3(LightColorVariableName, new Vector3(1.0f, 0.5f, 0.0f) * effect.Alpha);
+                DrawModelObject(explosionSphere);
+            }
+
+            SetUniform3(LightColorVariableName, new Vector3(1f, 1f, 1f)); // reset
 
             ImGui.Begin("Game Status");
             if (gameWon)
@@ -424,7 +443,7 @@ namespace GrafikaSzeminarium
 
         private static void DrawBoosts()
         {
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 12; i++)
             {
                 if (!boostCollected[i])
                 {
