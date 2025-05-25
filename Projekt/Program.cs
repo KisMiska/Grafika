@@ -40,6 +40,9 @@ namespace GrafikaSzeminarium
         private static double gameTime = 0.0;
         private static bool[] boostCollected = new bool[8];
 
+        private static bool gameWon = false;
+        private static List<Bot> destroyedBots = new List<Bot>();
+
         private const string ModelMatrixVariableName = "uModel";
         private const string NormalMatrixVariableName = "uNormal";
         private const string ViewMatrixVariableName = "uView";
@@ -108,6 +111,35 @@ namespace GrafikaSzeminarium
                     boostCollected[i] = true;
                     cubeArrangementModel.CollectBoost();
 
+                }
+            }
+        }
+
+        private static void CheckBotCollisions()
+        {
+            if (gameWon) return;
+
+            var bots = botsDescriptor.GetBots();
+            foreach (var bot in bots)
+            {
+                if (destroyedBots.Contains(bot)) continue;
+
+                float distance = Vector3D.Distance(cubeArrangementModel.Position, bot.Position);
+                if (distance <= 2.0f)
+                {
+                    if (cubeArrangementModel.IsBoosted)
+                    {
+                        destroyedBots.Add(bot);
+
+                        if (destroyedBots.Count == bots.Count)
+                        {
+                            gameWon = true;
+                        }
+                    }
+                    else
+                    {
+                        ResetGame();
+                    }
                 }
             }
         }
@@ -230,7 +262,6 @@ namespace GrafikaSzeminarium
                 case Key.S:
                     cubeArrangementModel.IsMovingBackward = true;
                     break;
-
                 case Key.A:
                     cubeArrangementModel.IsTurningLeft = true;
                     break;
@@ -238,9 +269,7 @@ namespace GrafikaSzeminarium
                     cubeArrangementModel.IsTurningRight = true;
                     break;
                 case Key.R:
-                    cubeArrangementModel.Reset();
-                    InitializeBoosts();
-                    ResetBots();
+                    ResetGame();
                     break;
                 case Key.F:
                     if (camera.Mode == CameraDescriptor.CameraMode.ThirdPerson)
@@ -274,6 +303,15 @@ namespace GrafikaSzeminarium
             }
         }
 
+        private static void ResetGame()
+        {
+            cubeArrangementModel.Reset();
+            InitializeBoosts();
+            ResetBots();
+            destroyedBots.Clear();
+            gameWon = false;
+        }
+
         private static void GraphicWindow_Update(double deltaTime)
         {
             // NO OpenGL
@@ -285,6 +323,7 @@ namespace GrafikaSzeminarium
             cubeArrangementModel.AdvanceTime(deltaTime);
 
             CheckBoostCollisions();
+            CheckBotCollisions();
 
             botsDescriptor.Update((float)deltaTime);
 
@@ -320,11 +359,24 @@ namespace GrafikaSzeminarium
             var bots = botsDescriptor.GetBots();
             foreach (var bot in bots)
             {
-                Matrix4X4<float> botModelMatrix = bot.GetTransformMatrix();
-                SetModelMatrix(botModelMatrix);
-                DrawModelObject(bot.IsHammerhead ? bot2 : bot1);
-
+                if (!destroyedBots.Contains(bot))
+                {
+                    Matrix4X4<float> botModelMatrix = bot.GetTransformMatrix();
+                    SetModelMatrix(botModelMatrix);
+                    DrawModelObject(bot.IsHammerhead ? bot2 : bot1);
+                }
             }
+
+            ImGui.Begin("Game Status");
+            if (gameWon)
+            {
+                ImGui.Text("You Won! Press R to restart");
+            }
+            else
+            {
+                ImGui.Text($"Bots Destroyed: {destroyedBots.Count}/{bots.Count}");
+            }
+            ImGui.End();
 
             ImGui.Begin("Camera Controls");
 
