@@ -21,13 +21,13 @@ namespace GrafikaSzeminarium
 
         private static ModelObjectDescriptor cube;
 
-        private static ModelObjectDescriptor custom;
+        private static MultiTextureModelDescriptor custom;
 
         private static ModelObjectDescriptor skybox;
 
         private static ModelObjectDescriptor boost;
-        private static ModelObjectDescriptor bot1;
-        private static ModelObjectDescriptor bot2;
+        private static MultiTextureModelDescriptor bot1;
+        private static MultiTextureModelDescriptor bot2;
         private static BotsDescriptor botsDescriptor = new BotsDescriptor();
 
         private static CameraDescriptor camera = new CameraDescriptor();
@@ -168,11 +168,11 @@ namespace GrafikaSzeminarium
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
             cube = ModelObjectDescriptor.CreateCube(Gl);
-            custom = ModelObjectDescriptor.CreateCustom(Gl, "trojan_412.obj");
+            custom = MultiTextureModelDescriptor.CreateCustomWithMaterials(Gl, "trojan_412.obj");
             skybox = ModelObjectDescriptor.CreateSkyBox(Gl);
             boost = ModelObjectDescriptor.CreateCustom(Gl, "boost.obj");
-            bot1 = ModelObjectDescriptor.CreateCustom(Gl, "hydra_flak.obj");
-            bot2 = ModelObjectDescriptor.CreateCustom(Gl, "hammerhead.obj");
+            bot1 = MultiTextureModelDescriptor.CreateCustomWithMaterials(Gl, "hydra_flak.obj");
+            bot2 = MultiTextureModelDescriptor.CreateCustomWithMaterials(Gl, "hammerhead.obj");
             explosionSphere = ModelObjectDescriptor.CreateSphere(Gl);
 
             camera.SetVehicleReference(cubeArrangementModel);
@@ -361,18 +361,7 @@ namespace GrafikaSzeminarium
 
             var modelMatrixCenterCube = cubeArrangementModel.GetTransformMatrix();
             SetModelMatrix(modelMatrixCenterCube);
-            if (custom.Texture.HasValue)
-            {
-                int textureLocation = Gl.GetUniformLocation(program, TextureVariableName);
-                if (textureLocation != -1)
-                {
-                    Gl.Uniform1(textureLocation, 0);
-                    Gl.ActiveTexture(TextureUnit.Texture0);
-                    Gl.BindTexture(TextureTarget.Texture2D, custom.Texture.Value);
-                }
-            }
-            DrawModelObject(custom);
-            Gl.BindTexture(TextureTarget.Texture2D, 0);
+            custom.Draw(Gl, program, TextureVariableName);
 
             DrawBoosts();
 
@@ -384,20 +373,8 @@ namespace GrafikaSzeminarium
                     Matrix4X4<float> botModelMatrix = bot.GetTransformMatrix();
                     SetModelMatrix(botModelMatrix);
 
-                    var botModel = bot.IsHammerhead ? bot2 : bot1;
-                    if (botModel.Texture.HasValue)
-                    {
-                        int textureLocation = Gl.GetUniformLocation(program, TextureVariableName);
-                        if (textureLocation != -1)
-                        {
-                            Gl.Uniform1(textureLocation, 0);
-                            Gl.ActiveTexture(TextureUnit.Texture0);
-                            Gl.BindTexture(TextureTarget.Texture2D, botModel.Texture.Value);
-                        }
-                    }
-
-                    DrawModelObject(botModel);
-                    Gl.BindTexture(TextureTarget.Texture2D, 0);
+                    var botMultiTextureModel = bot.IsHammerhead ? bot2 : bot1;
+                    botMultiTextureModel.Draw(Gl, program, TextureVariableName);
                 }
             }
 

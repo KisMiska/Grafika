@@ -40,6 +40,41 @@
     <EmbeddedResource Include="Resources\trojan_412.png"/>
     <EmbeddedResource Include="Resources\kamu.png"/>
     <EmbeddedResource Include="Resources\Green.png"/>
-  </ItemGroup>
+    <EmbeddedResource Include="Resources\tracks.jpg" />
+    <EmbeddedResource Include="Resources\trappe_dessus.jpg" />
+    <EmbeddedResource Include="Resources\tuyaux.jpg" />
+    <EmbeddedResource Include="Resources\aigle.jpg" />
+    <EmbeddedResource Include="Resources\base_potence.jpg" />
+    <EmbeddedResource Include="Resources\bras.jpg" />
+    <EmbeddedResource Include="Resources\cable_de_poulie.jpg" />
+    <EmbeddedResource Include="Resources\compartiment_centrale.jpg" />
+    <EmbeddedResource Include="Resources\Console.jpg" />
+    <EmbeddedResource Include="Resources\console2_1.jpg" />
+    <EmbeddedResource Include="Resources\coque_bolter.jpg" />
+    <EmbeddedResource Include="Resources\coque_side.jpg" />
+    <EmbeddedResource Include="Resources\deco-1_1.jpg" />
+    <EmbeddedResource Include="Resources\hull_interieur.jpg" />
+    <EmbeddedResource Include="Resources\hull_trojan_central_.jpg" />
+    <EmbeddedResource Include="Resources\meutriere_pilote.jpg" />
+    <EmbeddedResource Include="Resources\portes_dessus.jpg" />
+    <EmbeddedResource Include="Resources\potence.jpg" />
+    <EmbeddedResource Include="Resources\Tex_0017-H.jpg" />
+    <EmbeddedResource Include="Resources\interieurCouleur_de_surface-H.jpg" />
+    <EmbeddedResource Include="Resources\sas-H.jpg" />
+    <EmbeddedResource Include="Resources\Tex_0000_0-H.jpg" />
+    <EmbeddedResource Include="Resources\Tex_0001_0-H.jpg" />
+    <EmbeddedResource Include="Resources\base_hull__ecoutille.jpg" />
+    <EmbeddedResource Include="Resources\canon.jpg" />
+    <EmbeddedResource Include="Resources\case_arrirere.jpg" />
+    <EmbeddedResource Include="Resources\central_hull.jpg" />
+    <EmbeddedResource Include="Resources\coque_bolter1.jpg" />
+    <EmbeddedResource Include="Resources\ecoutille_1.jpg" />
+    <EmbeddedResource Include="Resources\ecoutille_2.jpg" />
+    <EmbeddedResource Include="Resources\ecoutille_turet..jpg" />
+    <EmbeddedResource Include="Resources\fulgurant.jpg" />
+    <EmbeddedResource Include="Resources\hull_interieur1.jpg" />
+    <EmbeddedResource Include="Resources\meutriere_pilote1.jpg" />
+    <EmbeddedResource Include="Resources\trappe_e_1.jpg" />
+    </ItemGroup>
 
 </Project>
