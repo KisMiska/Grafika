@@ -227,7 +227,7 @@ namespace GrafikaSzeminarium
             float[] colorArray;
             uint[] indexArray;
 
-            var textureImage = ReadTextureImage("kamu.png");
+            var textureImage = ReadTextureImage("Green.png");
 
             ObjectResourceReader.CreateObjectFromResource(GL, modelName, out vertexArray, out colorArray, out indexArray);
 

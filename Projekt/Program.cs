@@ -361,7 +361,18 @@ namespace GrafikaSzeminarium
 
             var modelMatrixCenterCube = cubeArrangementModel.GetTransformMatrix();
             SetModelMatrix(modelMatrixCenterCube);
+            if (custom.Texture.HasValue)
+            {
+                int textureLocation = Gl.GetUniformLocation(program, TextureVariableName);
+                if (textureLocation != -1)
+                {
+                    Gl.Uniform1(textureLocation, 0);
+                    Gl.ActiveTexture(TextureUnit.Texture0);
+                    Gl.BindTexture(TextureTarget.Texture2D, custom.Texture.Value);
+                }
+            }
             DrawModelObject(custom);
+            Gl.BindTexture(TextureTarget.Texture2D, 0);
 
             DrawBoosts();
 
@@ -372,7 +383,21 @@ namespace GrafikaSzeminarium
                 {
                     Matrix4X4<float> botModelMatrix = bot.GetTransformMatrix();
                     SetModelMatrix(botModelMatrix);
-                    DrawModelObject(bot.IsHammerhead ? bot2 : bot1);
+
+                    var botModel = bot.IsHammerhead ? bot2 : bot1;
+                    if (botModel.Texture.HasValue)
+                    {
+                        int textureLocation = Gl.GetUniformLocation(program, TextureVariableName);
+                        if (textureLocation != -1)
+                        {
+                            Gl.Uniform1(textureLocation, 0);
+                            Gl.ActiveTexture(TextureUnit.Texture0);
+                            Gl.BindTexture(TextureTarget.Texture2D, botModel.Texture.Value);
+                        }
+                    }
+
+                    DrawModelObject(botModel);
+                    Gl.BindTexture(TextureTarget.Texture2D, 0);
                 }
             }
 

@@ -39,6 +39,7 @@
     <EmbeddedResource Include="Resources\hammerhead.obj"/>
     <EmbeddedResource Include="Resources\trojan_412.png"/>
     <EmbeddedResource Include="Resources\kamu.png"/>
+    <EmbeddedResource Include="Resources\Green.png"/>
   </ItemGroup>
 
 </Project>
