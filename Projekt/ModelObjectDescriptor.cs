@@ -227,9 +227,11 @@ namespace GrafikaSzeminarium
             float[] colorArray;
             uint[] indexArray;
 
+            var textureImage = ReadTextureImage("kamu.png");
+
             ObjectResourceReader.CreateObjectFromResource(GL, modelName, out vertexArray, out colorArray, out indexArray);
 
-            return CreateModelObjectFromArrays(GL, vertexArray, colorArray, indexArray);
+            return CreateModelObjectFromArrays(GL, vertexArray, colorArray, indexArray, textureImage);
         }
 
         public static ModelObjectDescriptor CreateSphere(GL Gl, int segments = 16)
@@ -290,7 +292,7 @@ namespace GrafikaSzeminarium
             return CreateModelObjectFromArrays(Gl, vertices.ToArray(), colors.ToArray(), indices.ToArray());
         }
         private static unsafe ModelObjectDescriptor CreateModelObjectFromArrays(GL Gl, float[] vertexArray, float[] colorArray, uint[] indexArray,
-            ImageResult textureImage = null)
+            ImageResult textureImage= null)
         {
             uint vao = Gl.GenVertexArray();
             Gl.BindVertexArray(vao);
