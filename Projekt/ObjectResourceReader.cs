@@ -19,8 +19,11 @@ namespace Szeminarium
             List<int[]> objFaces = new List<int[]>();
             List<float[]> objNormals = new List<float[]>();
             List<int[]> objFaceNormals = new List<int[]>();
+            List<float[]> objTexCoords = new List<float[]>();
+            List<int[]> objFaceTexCoords = new List<int[]>();
 
             bool hasNormals = false;
+            bool hasTexCoords = false;
 
             string fullResourceName = "Projekt.Resources." + resourceName;
             using (var objStream = typeof(ObjectResourceReader).Assembly.GetManifestResourceStream(fullResourceName))
@@ -58,57 +61,48 @@ namespace Szeminarium
                                 normal[i] = float.Parse(lineData[i], CultureInfo.InvariantCulture);
                             objNormals.Add(normal);
                             break;
+                        case "vt":
+                            hasTexCoords = true;
+                            float[] texCoord = new float[2];
+                            for (int i = 0; i < Math.Min(lineData.Length, 2); ++i)
+                                texCoord[i] = float.Parse(lineData[i], CultureInfo.InvariantCulture);
+                            objTexCoords.Add(texCoord);
+                            break;
                         case "f":
                             List<int> face = new List<int>();
                             List<int> faceNormals = new List<int>();
-                            for (int i = 0; i < lineData.Length; ++i)
+                            List<int> faceTexCoords = new List<int>();
+                            foreach (string vertexx in lineData)
                             {
-                                string[] indices = lineData[i].Split('/');
-
+                                string[] indices = vertexx.Split('/');
+                                
+                                // Vertex index
                                 if (indices.Length > 0 && !string.IsNullOrEmpty(indices[0]))
-                                {
-                                    int vertexIndex = int.Parse(indices[0], CultureInfo.InvariantCulture);
-                                    face.Add(vertexIndex);
+                                    face.Add(int.Parse(indices[0], CultureInfo.InvariantCulture));
+                                else
+                                    face.Add(1);
 
-                                    int normalIndex = -1;
-                                    if (indices.Length >= 3 && !string.IsNullOrEmpty(indices[2]))
-                                    {
-                                        normalIndex = int.Parse(indices[2], CultureInfo.InvariantCulture);
-                                    }
-                                    else if (indices.Length == 2 && !string.IsNullOrEmpty(indices[1]))
-                                    {
-    
-                                        normalIndex = int.Parse(indices[1], CultureInfo.InvariantCulture);
-                                    }
-                                    faceNormals.Add(normalIndex);
+                                // Texture coordinate index
+                                if (indices.Length > 1 && !string.IsNullOrEmpty(indices[1]))
+                                    faceTexCoords.Add(int.Parse(indices[1], CultureInfo.InvariantCulture));
+                                else
+                                    faceTexCoords.Add(1);
 
-                                }
-                               
+                                // Normal index
+                                if (indices.Length > 2 && !string.IsNullOrEmpty(indices[2]))
+                                    faceNormals.Add(int.Parse(indices[2], CultureInfo.InvariantCulture));
+                                else
+                                    faceNormals.Add(1);
                             }
 
                             for (int i = 1; i < face.Count - 1; ++i)
-                                {
-                                    int[] triangleFace =
-                                    [
-                                        face[0], 
-                                        face[i], 
-                                        face[i + 1] 
-                                    ];
-                                    
-                                    int[] triangleNormals =
-                                    [
-                                        faceNormals[0], 
-                                        faceNormals[i], 
-                                        faceNormals[i + 1] 
-                                    ];
-                                    
-                                    objFaces.Add(triangleFace);
-                                    objFaceNormals.Add(triangleNormals);
-                                }
-
-                            objFaces.Add(face.ToArray());
-                            objFaceNormals.Add(faceNormals.ToArray());
+                            {
+                                objFaces.Add([face[0], face[i], face[i + 1]]);
+                                objFaceTexCoords.Add([faceTexCoords[0], faceTexCoords[i], faceTexCoords[i + 1]]);
+                                objFaceNormals.Add([faceNormals[0], faceNormals[i], faceNormals[i + 1]]);
+                            }
                             break;
+
                         default:
                             break;
                     }
@@ -121,8 +115,9 @@ namespace Szeminarium
                 vertexTransformations.Add(new ObjVertexTransformationData(
                     new Vector3D<float>(objVertex[0], objVertex[1], objVertex[2]),
                     Vector3D<float>.Zero,
+                    new Vector2D<float>(0, 0),
                     0
-                    ));
+                ));
             }
 
             if (hasNormals)
@@ -166,6 +161,32 @@ namespace Szeminarium
                 }
             }
 
+            if (hasTexCoords)
+            {
+                for (int faceIndex = 0; faceIndex < objFaces.Count; faceIndex++)
+                {
+                    var face = objFaces[faceIndex];
+                    var texCoordIndices = objFaceTexCoords[faceIndex];
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (texCoordIndices[i] > 0)
+                        {
+                            var vertexIndex = face[i] - 1;
+                            var texCoordIndex = texCoordIndices[i] - 1;
+
+                            if (texCoordIndex < objTexCoords.Count)
+                            {
+                                var texCoord = objTexCoords[texCoordIndex];
+                                vertexTransformations[vertexIndex].SetTextureCoordinates(
+                                    new Vector2D<float>(texCoord[0], texCoord[1])
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
             
 
             List<float> glVertices = new List<float>();
@@ -179,6 +200,9 @@ namespace Szeminarium
                 glVertices.Add(vertexTransformation.Normal.X);
                 glVertices.Add(vertexTransformation.Normal.Y);
                 glVertices.Add(vertexTransformation.Normal.Z);
+
+                glVertices.Add(vertexTransformation.TextureCoordinates.X);
+                glVertices.Add(vertexTransformation.TextureCoordinates.Y);
 
                 glColors.AddRange([1.0f, 0.0f, 0.0f, 1.0f]);
             }
