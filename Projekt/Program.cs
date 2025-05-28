@@ -25,7 +25,7 @@ namespace GrafikaSzeminarium
 
         private static ModelObjectDescriptor skybox;
 
-        private static ModelObjectDescriptor boost;
+        private static MultiTextureModelDescriptor boost;
         private static MultiTextureModelDescriptor bot1;
         private static MultiTextureModelDescriptor bot2;
         private static BotsDescriptor botsDescriptor = new BotsDescriptor();
@@ -59,7 +59,7 @@ namespace GrafikaSzeminarium
 
         private const string TextureVariableName = "uTexture";
 
-        private static float shininess = 50;
+        private static float shininess = 100;
 
         private static uint program;
 
@@ -167,10 +167,10 @@ namespace GrafikaSzeminarium
 
             imGuiController = new ImGuiController(Gl, graphicWindow, inputContext);
 
-            cube = ModelObjectDescriptor.CreateCube(Gl);
+            // cube = ModelObjectDescriptor.CreateCube(Gl);
             custom = MultiTextureModelDescriptor.CreateCustomWithMaterials(Gl, "trojan_412.obj");
             skybox = ModelObjectDescriptor.CreateSkyBox(Gl);
-            boost = ModelObjectDescriptor.CreateCustom(Gl, "boost.obj");
+            boost = MultiTextureModelDescriptor.CreateCustomWithMaterials(Gl, "45.obj");
             bot1 = MultiTextureModelDescriptor.CreateCustomWithMaterials(Gl, "hydra_flak.obj");
             bot2 = MultiTextureModelDescriptor.CreateCustomWithMaterials(Gl, "hammerhead.obj");
             explosionSphere = ModelObjectDescriptor.CreateSphere(Gl);
@@ -445,19 +445,20 @@ namespace GrafikaSzeminarium
 
         private static void DrawBoosts()
         {
+
             for (int i = 0; i < 12; i++)
             {
                 if (!boostCollected[i])
                 {
                     double oscillationPhase = gameTime * 2.0 + boostTimeOffsets[i];
-                    float scale = 0.3f + 0.05f * (float)Math.Sin(oscillationPhase);
+                    float scale = 1.0f + 0.05f * (float)Math.Sin(oscillationPhase);
 
                     float rotation = (float)(gameTime + boostTimeOffsets[i]);
 
                     var boostMatrix = Matrix4X4.CreateScale(scale) * Matrix4X4.CreateRotationY(rotation) * Matrix4X4.CreateTranslation(boostPositions[i]);
 
                     SetModelMatrix(boostMatrix);
-                    DrawModelObject(boost);
+                    boost.Draw(Gl, program, TextureVariableName);
                 }
             }
         }

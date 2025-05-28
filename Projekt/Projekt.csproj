@@ -72,9 +72,15 @@
     <EmbeddedResource Include="Resources\ecoutille_2.jpg" />
     <EmbeddedResource Include="Resources\ecoutille_turet..jpg" />
     <EmbeddedResource Include="Resources\fulgurant.jpg" />
+    <EmbeddedResource Include="Resources\base_turret.jpg" />
     <EmbeddedResource Include="Resources\hull_interieur1.jpg" />
     <EmbeddedResource Include="Resources\meutriere_pilote1.jpg" />
     <EmbeddedResource Include="Resources\trappe_e_1.jpg" />
+    <EmbeddedResource Include="Resources\45.obj"/>
+    <EmbeddedResource Include="Resources\bullet.jpg" />
+    <EmbeddedResource Include="Resources\dirt_texture.jpg"/>
+    <EmbeddedResource Include="Resources\metal_scratches.jpg"/>
+    <EmbeddedResource Include="Resources\metal_scratches_1.jpg"/>
     </ItemGroup>
 
 </Project>

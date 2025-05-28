@@ -27,7 +27,7 @@ namespace Szeminarium
         public Vector3D<float> Position { get; private set; } = Vector3D<float>.Zero;
         public float Rotation { get; private set; } = 0f;
 
-        private const float MovementSpeed = 3.0f;
+        private const float MovementSpeed = 3.8f;
         private const float RotationSpeed = 1.5f;
 
         public bool IsMovingForward { get; set; } = false;

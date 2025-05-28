@@ -227,11 +227,9 @@ namespace GrafikaSzeminarium
             float[] colorArray;
             uint[] indexArray;
 
-            var textureImage = ReadTextureImage("Green.png");
-
             ObjectResourceReader.CreateObjectFromResource(GL, modelName, out vertexArray, out colorArray, out indexArray);
 
-            return CreateModelObjectFromArrays(GL, vertexArray, colorArray, indexArray, textureImage);
+            return CreateModelObjectFromArrays(GL, vertexArray, colorArray, indexArray);
         }
 
         public static ModelObjectDescriptor CreateSphere(GL Gl, int segments = 16)

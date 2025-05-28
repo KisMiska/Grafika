@@ -192,7 +192,7 @@ namespace Szeminarium
                                 glVertices.Add(0.0f);
                             }
 
-                            glColors.AddRange(new float[] { 1.0f, 0.0f, 0.0f, 1.0f });
+                            glColors.AddRange(new float[] { 0.5f, 0.5f, 0.5f, 0.5f});
 
                             vertexMap[vertexKey] = currentVertexIndex;
                             currentVertexIndex++;
@@ -230,7 +230,7 @@ namespace Szeminarium
                 var edge1 = v1 - v0;
                 var edge2 = v2 - v0;
                 var normal = Vector3.Normalize(Vector3.Cross(edge1, edge2));
-                
+
                 vertices[(int)idx0 + 3] = normal.X;
                 vertices[(int)idx0 + 4] = normal.Y;
                 vertices[(int)idx0 + 5] = normal.Z;
