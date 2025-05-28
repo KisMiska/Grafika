@@ -95,7 +95,7 @@ namespace GrafikaSzeminarium
             for (int i = 0; i < 12; i++)
             {
                 boostPositions[i] = new Vector3D<float>(
-                    (float)(random.NextDouble() * 100 - 10), 1.0f, (float)(random.NextDouble() * 100 - 10)
+                    (float)(random.NextDouble() * 45 - 25), 1.0f, (float)(random.NextDouble() * 45 - 25)
                 );
 
                 //not in sync
